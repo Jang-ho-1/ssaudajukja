@@ -65,7 +65,7 @@
   .item { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px; }
   .item.busy { opacity:.55; }
   .pair { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
-  .pair canvas { width:100%; aspect-ratio:1; object-fit:contain; border-radius:7px; cursor:zoom-in;
+  .pair img { width:100%; aspect-ratio:1; object-fit:contain; border-radius:7px; cursor:zoom-in;
     background:var(--tile) conic-gradient(var(--tile2) 25%, transparent 0 50%, var(--tile2) 0 75%, transparent 0) 0 0/14px 14px; }
   .iname { font-size:13px; margin:6px 2px 4px; word-break:break-all; }
   .ifolder { font-size:12px; color:var(--sub); }
@@ -325,11 +325,14 @@ $('pickRoot').onclick = async () => {
 $('depth').oninput = () => { $('depthv').textContent = $('depth').value; };
 $('suffix').oninput = updatePlan;
 
-function thumb(src, size) {
+// 미리보기는 작은 webp 그림으로만 남김 (수천 장이어도 메모리를 거의 안 씀)
+async function thumb(src, size) {
   const c = document.createElement('canvas'), s = Math.min(1, size / Math.max(src.width, src.height));
   c.width = Math.max(1, Math.round(src.width * s)); c.height = Math.max(1, Math.round(src.height * s));
   c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
-  return c;
+  const blob = await new Promise(r => c.toBlob(r, 'image/webp', 0.8));
+  const img = new Image(); img.src = URL.createObjectURL(blob); img.alt = '';
+  return img;
 }
 
 async function processOne(fileHandle, factor) {
@@ -339,7 +342,7 @@ async function processOne(fileHandle, factor) {
   const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(bmp, 0, 0);
   x.putImageData(removeOutline(x.getImageData(0, 0, c.width, c.height), $('dark').checked, factor), 0, 0);
   const blob = await new Promise(r => c.toBlob(r, 'image/png'));
-  return { bmp, canvas: c, blob };
+  return { bmp, canvas: c, blob };       // bmp 는 쓰고 나서 꼭 close()
 }
 
 async function save(dir, name, blob) {
@@ -347,11 +350,11 @@ async function save(dir, name, blob) {
   const ws = await fh.createWritable(); await ws.write(blob); await ws.close();
 }
 
-function addItem(it, bmp, canvas) {
+async function addItem(it, bmp, canvas) {
   const el = document.createElement('div'); el.className = 'item';
   el.innerHTML = `<div class="pair"></div><div class="iname"></div><div class="iact"><button data-d="-0.5">덜 지우기</button><button data-d="0.5">더 지우기</button><span class="dv"></span></div>`;
   const pair = el.querySelector('.pair');
-  it.a = thumb(bmp, 240); it.b = thumb(canvas, 240); pair.append(it.a, it.b);
+  it.a = await thumb(bmp, 240); it.b = await thumb(canvas, 240); pair.append(it.a, it.b);
   el.querySelector('.iname').innerHTML = '<span></span> <span class="ifolder"></span>';
   el.querySelector('.iname span').textContent = it.src.name;
   el.querySelector('.ifolder').textContent = '→ ' + it.outLabel;
@@ -371,8 +374,8 @@ async function redoItem(it, delta) {
     const r = await processOne(it.src, f);
     await save(it.outDir, it.src.name, r.blob);
     it.factor = f; it.dv.textContent = '깊이 ' + f;
-    const nb = thumb(r.canvas, 240); it.b.replaceWith(nb); it.b = nb;
-    if (it.url) URL.revokeObjectURL(it.url); it.url = null;
+    r.bmp.close();
+    const nb = await thumb(r.canvas, 240); URL.revokeObjectURL(it.b.src); it.b.replaceWith(nb); it.b = nb;
     msg(`«${it.src.name}» 깊이 ${f}로 다시 지워서 저장했어요.`, 'ok');
   } catch (e) { msg(`«${it.src.name}» 다시 지우기 실패: ${e.message}`, 'err'); }
   it.el.classList.remove('busy');
@@ -423,7 +426,8 @@ $('start').onclick = async () => {
         await save(outDir, f.name, r.blob);
         saved++;
         const it = { src: f, outDir, outLabel, factor };
-        items.push(it); addItem(it, r.bmp, r.canvas);
+        items.push(it);
+        try { await addItem(it, r.bmp, r.canvas); } finally { r.bmp.close(); }
       } catch (e) { console.error(e); failed++; }
       done++;
       $('sDone').textContent = done; $('barfill').style.width = (done / jobs.length * 100) + '%';
