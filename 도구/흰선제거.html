@@ -4,90 +4,176 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>흰선 지우개</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --sub:#667085; --line:#d8dde6; --acc:#1f7a4d; --acc2:#e8f5ee; --warn:#b54708; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#14171c; --card:#1d2128; --ink:#e8ebf0; --sub:#98a2b3; --line:#323844; --acc:#3fbf7f; --acc2:#1c2e25; --warn:#f79009; } }
-  * { box-sizing: border-box; }
-  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.5 system-ui, "Malgun Gothic", sans-serif; }
-  main { max-width:1100px; margin:0 auto; padding:24px 16px 60px; }
-  h1 { font-size:22px; margin:0 0 4px; }
-  .sub { color:var(--sub); margin:0 0 18px; }
-  #drop { border:2px dashed var(--line); border-radius:14px; background:var(--card); padding:36px 16px; text-align:center; cursor:pointer; transition:.15s; }
-  #drop.on { border-color:var(--acc); background:var(--acc2); }
-  #drop b { font-size:17px; }
-  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:16px 0; }
-  button { font:inherit; padding:9px 16px; border-radius:9px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
-  button.main { background:var(--acc); border-color:var(--acc); color:#fff; font-weight:600; }
+  :root {
+    --bg:#f4f6f8; --card:#ffffff; --ink:#1b2230; --sub:#5f6b7d; --line:#dde2ea; --soft:#eef1f5;
+    --acc:#16794a; --acc-ink:#ffffff; --acc-soft:#e6f4ec; --warn:#b54708; --warn-soft:#fff4e5; --err:#c4320a;
+    --tile:#3a3f52; --tile2:#454b60;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#12151a; --card:#1b1f26; --ink:#e7eaf0; --sub:#9aa4b4; --line:#2e3440; --soft:#232832;
+      --acc:#35b877; --acc-ink:#0d1a12; --acc-soft:#183026; --warn:#f5a524; --warn-soft:#2e2412; --err:#ff7a59;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 system-ui, "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; }
+  main { max-width:1080px; margin:0 auto; padding:28px 16px 80px; }
+  header h1 { font-size:24px; margin:0; letter-spacing:-.3px; }
+  header p { margin:4px 0 22px; color:var(--sub); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 18px 16px; margin-bottom:14px; }
+  .card h2 { font-size:16px; margin:0 0 10px; display:flex; align-items:center; gap:10px; }
+  .num { width:24px; height:24px; border-radius:50%; background:var(--acc); color:var(--acc-ink); display:inline-grid; place-items:center; font-size:13px; font-weight:700; flex:none; }
+  .card.off { opacity:.5; pointer-events:none; }
+  .sub { color:var(--sub); font-size:14px; }
+  button { font:inherit; padding:9px 16px; border-radius:10px; border:1px solid var(--line); background:var(--card); color:var(--ink); cursor:pointer; }
+  button:hover:not(:disabled) { background:var(--soft); }
+  button.main { background:var(--acc); border-color:var(--acc); color:var(--acc-ink); font-weight:700; }
+  button.main:hover:not(:disabled) { filter:brightness(1.07); background:var(--acc); }
+  button.big { padding:12px 22px; font-size:16px; }
   button:disabled { opacity:.45; cursor:default; }
-  label.opt { display:flex; gap:6px; align-items:center; color:var(--sub); }
-  #status { color:var(--sub); }
-  #status.warn { color:var(--warn); }
-  #grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+  .path { font-weight:700; }
+  #folders { margin-top:12px; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  .frow { display:grid; grid-template-columns:28px 1fr auto auto; gap:10px; align-items:center; padding:9px 12px; border-top:1px solid var(--line); }
+  .frow:first-child { border-top:0; }
+  .frow.head { background:var(--soft); font-size:13px; color:var(--sub); font-weight:600; }
+  .frow.dim { color:var(--sub); }
+  .frow input { width:17px; height:17px; }
+  .cnt { color:var(--sub); font-size:14px; white-space:nowrap; }
+  .to { font-size:14px; white-space:nowrap; }
+  .to b { color:var(--acc); }
+  .tag { font-size:12px; padding:1px 7px; border-radius:20px; background:var(--soft); color:var(--sub); margin-left:6px; }
+  .opts { display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:14px 22px; }
+  .opt label { font-weight:600; display:block; margin-bottom:4px; }
+  .opt .sub { font-size:13px; }
+  input[type=range] { width:100%; accent-color:var(--acc); }
+  input[type=text] { font:inherit; padding:6px 10px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--ink); width:90px; }
+  .check { display:flex; gap:8px; align-items:flex-start; }
+  .check input { margin-top:4px; accent-color:var(--acc); }
+  .note { background:var(--warn-soft); color:var(--warn); border-radius:10px; padding:10px 12px; font-size:14px; margin-top:12px; }
+  .progress { margin-top:14px; }
+  .bar { height:10px; background:var(--soft); border-radius:6px; overflow:hidden; }
+  .bar i { display:block; height:100%; width:0; background:var(--acc); transition:width .25s; }
+  .stats { display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:8px; font-size:14px; color:var(--sub); }
+  .stats b { color:var(--ink); }
+  #msg { margin-top:10px; font-weight:600; }
+  #msg.err { color:var(--err); }
+  #msg.ok { color:var(--acc); }
+  .gtools { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  #grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(230px, 1fr)); gap:12px; }
   .item { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px; }
+  .item.busy { opacity:.55; }
   .pair { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
-  .pair img { width:100%; aspect-ratio:1; object-fit:contain; border-radius:6px; background:#3a3f52 conic-gradient(#454b60 25%, transparent 0 50%, #454b60 0 75%, transparent 0) 0 0/16px 16px; image-rendering:pixelated; }
-  .name { font-size:13px; color:var(--sub); margin-top:6px; word-break:break-all; }
-  .bar { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:4px; }
-  .bar i { display:block; height:100%; width:0; background:var(--acc); transition:width .2s; }
+  .pair canvas { width:100%; aspect-ratio:1; object-fit:contain; border-radius:7px; cursor:zoom-in;
+    background:var(--tile) conic-gradient(var(--tile2) 25%, transparent 0 50%, var(--tile2) 0 75%, transparent 0) 0 0/14px 14px; }
+  .iname { font-size:13px; margin:6px 2px 4px; word-break:break-all; }
+  .ifolder { font-size:12px; color:var(--sub); }
+  .iact { display:flex; gap:6px; align-items:center; }
+  .iact button { padding:4px 9px; font-size:13px; border-radius:8px; }
+  .iact .dv { font-size:12px; color:var(--sub); margin-left:auto; }
+  #viewer { position:fixed; inset:0; background:rgba(0,0,0,.82); display:none; flex-direction:column; align-items:center; justify-content:center; gap:10px; z-index:9; padding:16px; }
+  #viewer.on { display:flex; }
+  #viewer .vpair { display:flex; gap:10px; max-width:100%; max-height:82vh; }
+  #viewer img { max-width:48vw; max-height:82vh; object-fit:contain; border-radius:8px;
+    background:#3a3f52 conic-gradient(#454b60 25%, transparent 0 50%, #454b60 0 75%, transparent 0) 0 0/16px 16px; }
+  #viewer .vcap { color:#fff; font-size:14px; }
+  @media (max-width:640px) {
+    .frow { grid-template-columns:24px 1fr; }
+    .frow .cnt, .frow .to { grid-column:2; }
+    #viewer .vpair { flex-direction:column; }
+    #viewer img { max-width:92vw; max-height:40vh; }
+  }
 </style>
 </head>
 <body>
 <main>
-  <h1>흰선 지우개</h1>
-  <p class="sub">초록 바탕 · 투명 바탕 캐릭터 그림의 흰 테두리만 지워요. 원본 파일은 건드리지 않고, 고른 폴더에 같은 이름(.png)으로 저장해요.</p>
+  <header>
+    <h1>흰선 지우개</h1>
+    <p>초록 바탕 · 투명 바탕 캐릭터 그림(PNG)의 흰 테두리만 지워요. <b>원본은 절대 바꾸지 않고</b> 새 폴더에 저장해요.</p>
+  </header>
 
-  <div id="drop">
-    <b>여기에 사진을 끌어다 놓으세요</b><br>
-    <span class="sub">여러 장 한 번에 · 폴더째 끌어 놓아도 돼요 · 클릭하면 파일 고르기</span>
-    <input id="pick" type="file" accept="image/*" multiple hidden>
-  </div>
+  <div id="nosupport" class="note" hidden>이 브라우저는 폴더를 열 수 없어요. <b>크롬</b>이나 <b>엣지</b>로 이 파일을 열어 주세요.</div>
 
-  <div class="row">
-    <button id="saveDir" class="main" disabled>폴더 골라서 저장</button>
-    <button id="saveZip" disabled>ZIP으로 받기</button>
-    <button id="clear" disabled>비우기</button>
-    <label class="opt"><input id="dark" type="checkbox" checked> 가장자리 회색 번짐을 선 색으로 정리</label>
-  </div>
-  <div class="row">
-    <label class="opt">지우는 깊이 <input id="depth" type="range" min="1" max="5" step="0.5" value="2.5"> <b id="depthv">2.5</b></label>
-    <button id="redo" disabled>이 설정으로 전부 다시 지우기</button>
-    <span class="sub" style="margin:0">흰 털 · 흰 옷이 같이 지워지면 ← 줄이고, 흰 선이 덜 지워지면 → 늘리세요.</span>
-  </div>
-  <div id="status">사진을 넣으면 바로 흰 선을 지워서 아래에 보여 줘요. (왼쪽 원본 · 오른쪽 결과 · 그림을 누르면 크게 보기)</div>
-  <div class="bar"><i id="prog"></i></div>
-  <div id="grid" style="margin-top:14px"></div>
+  <section class="card" id="c1">
+    <h2><span class="num">1</span>폴더 고르기</h2>
+    <div class="row">
+      <button id="pickRoot" class="main">폴더 고르기…</button>
+      <span class="sub" id="rootInfo">예: <b>art</b> 폴더를 고르면 그 안의 폴더들이 목록으로 나와요. 그림이 바로 들어 있는 폴더를 골라도 돼요.</span>
+    </div>
+    <div id="folders" hidden></div>
+  </section>
+
+  <section class="card off" id="c2">
+    <h2><span class="num">2</span>설정</h2>
+    <div class="opts">
+      <div class="opt">
+        <label for="depth">지우는 깊이 <b id="depthv">2.5</b></label>
+        <input id="depth" type="range" min="1" max="5" step="0.5" value="2.5">
+        <div class="sub">흰 털 · 흰 옷이 같이 지워지면 ← 줄이고, 흰 선이 남으면 → 늘리세요. 그림마다 따로 바꿀 수도 있어요.</div>
+      </div>
+      <div class="opt">
+        <label for="suffix">새 폴더 이름</label>
+        <div class="row"><span class="sub">원래 이름 +</span><input id="suffix" type="text" value="2"><span class="sub">→ 예: 군인 착용<b>2</b></span></div>
+        <div class="sub" style="margin-top:6px">그림이 바로 들어 있는 폴더를 골랐다면 그 안에 «흰선없음» 폴더를 만들어요.</div>
+      </div>
+      <div class="opt">
+        <div class="check"><input id="dark" type="checkbox" checked><div><label for="dark" style="display:inline">가장자리 번짐 정리</label><div class="sub">흰 선과 검은 선 사이 1px 회색 번짐을 선 색으로 맞춰요.</div></div></div>
+        <div class="check" style="margin-top:8px"><input id="skip" type="checkbox"><div><label for="skip" style="display:inline">이미 만든 파일은 건너뛰기</label><div class="sub">끄면 새 폴더에 같은 이름 파일이 있을 때 새로 덮어써요.</div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card off" id="c3">
+    <h2><span class="num">3</span>지우기</h2>
+    <div class="row">
+      <button id="start" class="main big">흰 선 지우기 시작</button>
+      <button id="stop" hidden>멈추기</button>
+      <span class="sub" id="plan"></span>
+    </div>
+    <div class="progress" id="prog" hidden>
+      <div class="bar"><i id="barfill"></i></div>
+      <div class="stats">
+        <span>진행 <b id="sDone">0</b> / <b id="sTotal">0</b></span>
+        <span>지금 <b id="sNow">-</b></span>
+        <span>걸린 시간 <b id="sTime">0초</b></span>
+        <span>남은 시간 <b id="sLeft">-</b></span>
+      </div>
+    </div>
+    <div id="msg"></div>
+  </section>
+
+  <section class="card" id="c4" hidden>
+    <div class="gtools">
+      <h2 style="margin:0">결과 <span class="sub" id="gcount"></span></h2>
+      <span class="sub">왼쪽 원본 · 오른쪽 결과 · 그림을 누르면 크게 · «덜 / 더»로 그 그림만 다시 지워서 바로 저장</span>
+    </div>
+    <div id="grid"></div>
+  </section>
 </main>
+
+<div id="viewer"><div class="vpair"><img id="vA" alt="원본"><img id="vB" alt="결과"></div><div class="vcap" id="vcap"></div></div>
 
 <script>
 // ── 흰 테두리 지우기 (도구/흰선제거.py 와 같은 방식) ──
-//   바탕(왼쪽 위 구석 색)에서 시작해 붙어 있는 흰색 · 흰+초록 섞인 점을 지우고, 진한 선을 만나면 멈춤
-//   선은 건너뛰지 않고 테두리 두께의 2.5배보다 깊이는 안 들어감 · 안쪽 흰색(눈 흰자 · 흰 털 · 흰 옷)은 그대로
-function dilate(m, w, h, n) {
-  let cur = m;
-  for (let k = 0; k < n; k++) {
-    const out = cur.slice();
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      if (cur[i]) continue;
-      for (let dy = -1; dy <= 1; dy++) {
-        const yy = y + dy; if (yy < 0 || yy >= h) continue;
-        for (let dx = -1; dx <= 1; dx++) {
-          const xx = x + dx; if (xx < 0 || xx >= w) continue;
-          if (cur[yy * w + xx]) { out[i] = 1; dy = 2; break; }
-        }
-      }
-    }
-    cur = out;
+//   바탕(왼쪽 위 구석)에서 시작해 붙어 있는 흰색 · 흰+바탕 섞인 점을 지우고, 선을 만나면 멈춤
+//   선은 건너뛰지 않고 테두리 두께의 2.5배(깊이)보다 안쪽으로는 안 들어감 → 눈 흰자 · 흰 털 · 흰 옷은 남음
+function dilate(m, w, h) {
+  const out = m.slice();
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x;
+    if (m[i]) continue;
+    const y0 = y > 0 ? -1 : 0, y1 = y < h - 1 ? 1 : 0, x0 = x > 0 ? -1 : 0, x1 = x < w - 1 ? 1 : 0;
+    search: for (let dy = y0; dy <= y1; dy++) for (let dx = x0; dx <= x1; dx++) if (m[i + dy * w + dx]) { out[i] = 1; break search; }
   }
-  return cur;
+  return out;
 }
 
 function removeOutline(img, darken, factor) {
   const w = img.width, h = img.height, d = img.data, N = w * h;
   let asum = 0, acnt = 0;
   for (let y = 0; y < Math.min(20, h); y++) for (let x = 0; x < Math.min(20, w); x++) { asum += d[(y * w + x) * 4 + 3]; acnt++; }
-  const trans = asum / acnt < 16;            // 왼쪽 위 구석이 투명 = 투명 바탕 그림
+  const trans = asum / acnt < 16;                                // 왼쪽 위 구석이 투명 = 투명 바탕 그림
   const cs = [[], [], []];
   for (let y = 0; y < Math.min(20, h); y++) for (let x = 0; x < Math.min(20, w); x++) {
     const p = (y * w + x) * 4; cs[0].push(d[p]); cs[1].push(d[p + 1]); cs[2].push(d[p + 2]);
@@ -96,8 +182,7 @@ function removeOutline(img, darken, factor) {
   const br = med(cs[0]), bgc = med(cs[1]), bb = med(cs[2]);
   const dx = 255 - br, dy = 255 - bgc, dz = 255 - bb, dd = dx * dx + dy * dy + dz * dz || 1;
 
-  const cur = new Uint8Array(N), light = new Uint8Array(N), white = new Uint8Array(N),
-        gray = new Uint8Array(N), softc = new Uint8Array(N);
+  const cur = new Uint8Array(N), light = new Uint8Array(N), gray = new Uint8Array(N), softc = new Uint8Array(N);
   for (let i = 0; i < N; i++) {
     const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2];
     const mx = Math.max(r, g, b), mn = Math.min(r, g, b), lum = r * .3 + g * .59 + b * .11;
@@ -111,12 +196,11 @@ function removeOutline(img, darken, factor) {
       const off = Math.abs(r - (br + t * dx)) + Math.abs(g - (bgc + t * dy)) + Math.abs(b - (bb + t * dz));
       if ((off < 45 && t > 0.1) || (mn > 215 && mx - mn < 35)) light[i] = 1;
     }
-    if (mn > 215 && mx - mn < 35) white[i] = 1;
     if (lum > 100 && mx - mn < 60) gray[i] = 1;
     if (lum > 60 && mx - mn < 60) softc[i] = 1;
   }
 
-  // 흰 테두리 두께 : 바탕에서 안쪽으로 흰 점이 이어지는 길이의 중간값
+  // 흰 테두리 두께 = 바탕에서 안쪽으로 흰 점이 이어지는 길이의 중간값
   const runs = [];
   for (let y = 0; y < h; y += 3) for (let x = 0; x < w - 1; x++) {
     const i = y * w + x;
@@ -130,24 +214,29 @@ function removeOutline(img, darken, factor) {
   }
   runs.sort((p, q) => p - q);
   const width = runs.length ? (runs.length % 2 ? runs[runs.length >> 1] : (runs[runs.length / 2 - 1] + runs[runs.length / 2]) / 2) : 4;
-  const limit = Math.max(6, Math.round(width * (factor || 2.5)));     // 테두리 두께의 2.5배까지만 안쪽으로 (흰 털 · 흰 옷 보호)
+  const limit = Math.max(6, Math.round(width * (factor || 2.5)));
 
-  // 바탕에서 한 겹씩 (선은 건너뛰지 않음)
-  for (let k = 0; k < limit; k++) {
-    const D = dilate(cur, w, h, 1);
-    let added = false;
-    for (let i = 0; i < N; i++) if (D[i] && !cur[i] && light[i]) { cur[i] = 1; added = true; }
-    if (!added) break;
-  }
-  {
-    const D = dilate(cur, w, h, 1);
-    for (let i = 0; i < N; i++) if (D[i] && !cur[i] && gray[i]) cur[i] = 1;
-  }
-  if (darken) {
-    const D = dilate(cur, w, h, 1);
-    for (let i = 0; i < N; i++) if (D[i] && !cur[i] && softc[i]) {
-      d[i * 4] *= .45; d[i * 4 + 1] *= .45; d[i * 4 + 2] *= .45;
+  // 바탕에서 한 겹씩 안쪽으로 (선은 건너뛰지 않음 · limit 겹까지만)
+  const dist = new Int16Array(N), q = new Int32Array(N);
+  let head = 0, tail = 0;
+  for (let i = 0; i < N; i++) if (cur[i]) q[tail++] = i;
+  while (head < tail) {
+    const i = q[head++], di = dist[i];
+    if (di >= limit) continue;
+    const x = i % w, y = (i - x) / w;
+    for (let yy = y - 1; yy <= y + 1; yy++) {
+      if (yy < 0 || yy >= h) continue;
+      for (let xx = x - 1; xx <= x + 1; xx++) {
+        if (xx < 0 || xx >= w) continue;
+        const j = yy * w + xx;
+        if (!cur[j] && light[j]) { cur[j] = 1; dist[j] = di + 1; q[tail++] = j; }
+      }
     }
+  }
+  { const D = dilate(cur, w, h); for (let i = 0; i < N; i++) if (D[i] && !cur[i] && gray[i]) cur[i] = 1; }   // 흰색과 선 사이 회색 번짐
+  if (darken) {
+    const D = dilate(cur, w, h);
+    for (let i = 0; i < N; i++) if (D[i] && !cur[i] && softc[i]) { d[i * 4] *= .45; d[i * 4 + 1] *= .45; d[i * 4 + 2] *= .45; }
   }
   for (let i = 0; i < N; i++) if (cur[i]) {
     if (trans) { d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = d[i * 4 + 3] = 0; }      // 지운 자리는 투명하게
@@ -158,107 +247,197 @@ function removeOutline(img, darken, factor) {
 
 // ── 화면 ──
 const $ = id => document.getElementById(id);
-const results = [];   // { file, name, blob, out }
-const sleep = () => new Promise(r => setTimeout(r, 0));
-let busy = 0, total = 0, done = 0;
+const IMG = /\.png$/i;
+const DIRECT_OUT = '흰선없음';
+let root = null, groups = [], items = [], running = false, stopReq = false;
 
-function setStatus(t, warn) { $('status').textContent = t; $('status').className = warn ? 'warn' : ''; }
-function refresh() {
-  const ok = results.length > 0 && busy === 0;
-  $('saveDir').disabled = !ok; $('saveZip').disabled = !ok; $('redo').disabled = !ok; $('clear').disabled = results.length === 0 && busy === 0;
-  $('prog').style.width = total ? (done / total * 100) + '%' : '0';
+if (!window.showDirectoryPicker) { $('nosupport').hidden = false; $('pickRoot').disabled = true; }
+
+const tick = () => new Promise(r => setTimeout(r, 0));
+const fmt = s => s < 60 ? Math.round(s) + '초' : Math.floor(s / 60) + '분 ' + Math.round(s % 60) + '초';
+function msg(t, kind) { $('msg').textContent = t; $('msg').className = kind || ''; }
+
+async function listPng(dir) {
+  const out = [];
+  for await (const [name, h] of dir.entries()) if (h.kind === 'file' && IMG.test(name)) out.push(h);
+  out.sort((a, b) => a.name.localeCompare(b.name, 'ko', { numeric: true }));
+  return out;
 }
 
-async function convert(f) {
-  const bmp = await createImageBitmap(f);
-  const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
-  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(bmp, 0, 0);
-  x.putImageData(removeOutline(x.getImageData(0, 0, c.width, c.height), $('dark').checked, +$('depth').value), 0, 0);
-  return new Promise(r => c.toBlob(r, 'image/png'));
-}
+function outName(g) { return g.direct ? DIRECT_OUT : g.name + ($('suffix').value.trim() || '2'); }
 
-async function handle(files) {
-  files = files.filter(f => /\.(png|webp|jpe?g)$/i.test(f.name));
-  if (!files.length) { setStatus('그림 파일(png · webp · jpg)이 없어요.', true); return; }
-  total += files.length; busy += files.length; refresh();
-  for (const f of files) {
-    setStatus(`지우는 중… ${done + 1} / ${total}  (${f.name})`);
-    await sleep();
-    try {
-      const blob = await convert(f);
-      const name = f.name.replace(/\.[^.]+$/, '') + '.png';
-      const it = document.createElement('div'); it.className = 'item';
-      it.innerHTML = `<div class="pair"><img alt="원본"><img alt="결과"></div><div class="name"></div>`;
-      const imgs = it.querySelectorAll('img');
-      imgs[0].src = URL.createObjectURL(f); imgs[1].src = URL.createObjectURL(blob);
-      imgs.forEach(im => { im.style.cursor = 'zoom-in'; im.title = '클릭하면 크게 보기'; im.onclick = () => window.open(im.src); });
-      it.querySelector('.name').textContent = name;
-      $('grid').appendChild(it);
-      results.push({ file: f, name, blob, out: imgs[1] });
-    } catch (e) { console.error(e); setStatus(`${f.name} : 열 수 없는 파일이에요.`, true); }
-    done++; busy--; refresh();
+function renderFolders() {
+  const box = $('folders');
+  box.innerHTML = '<div class="frow head"><span></span><span>폴더</span><span>PNG</span><span>저장할 곳</span></div>';
+  if (!groups.length) {
+    box.innerHTML += '<div class="frow dim"><span></span><span>PNG 그림이 있는 폴더가 없어요. 다른 폴더를 골라 주세요.</span><span></span><span></span></div>';
   }
-  setStatus(`${results.length}장 완료. «폴더 골라서 저장»을 누르고 새 폴더(예: 군인 착용2)를 만들어 고르세요.`);
+  for (const g of groups) {
+    const r = document.createElement('label'); r.className = 'frow' + (g.isOutput ? ' dim' : '');
+    r.innerHTML = `<input type="checkbox"><span></span><span class="cnt"></span><span class="to"></span>`;
+    const cb = r.querySelector('input'); cb.checked = g.checked; cb.onchange = () => { g.checked = cb.checked; updatePlan(); };
+    const nm = r.querySelectorAll('span')[0];
+    nm.textContent = g.direct ? '(이 폴더 바로 안의 그림)' : g.name;
+    if (g.isOutput) { const t = document.createElement('span'); t.className = 'tag'; t.textContent = '결과 폴더로 보여요'; nm.appendChild(t); }
+    r.querySelector('.cnt').textContent = g.files.length + '장';
+    r.querySelector('.to').innerHTML = '→ <b></b>'; r.querySelector('.to b').textContent = outName(g);
+    g.toEl = r.querySelector('.to b');
+    box.appendChild(r);
+  }
+  box.hidden = false;
 }
+
+function updatePlan() {
+  groups.forEach(g => g.toEl && (g.toEl.textContent = outName(g)));
+  const sel = groups.filter(g => g.checked), n = sel.reduce((s, g) => s + g.files.length, 0);
+  $('plan').textContent = sel.length ? `폴더 ${sel.length}개 · 그림 ${n}장` : '1번에서 지울 폴더를 체크하세요.';
+  $('start').disabled = running || !n;
+  $('c2').classList.toggle('off', !groups.length);
+  $('c3').classList.toggle('off', !groups.length);
+}
+
+$('pickRoot').onclick = async () => {
+  try { root = await window.showDirectoryPicker({ id: 'heunseon', mode: 'readwrite' }); }
+  catch (e) { if (e.name !== 'AbortError') msg('폴더를 열지 못했어요: ' + e.message, 'err'); return; }
+  $('rootInfo').innerHTML = '고른 폴더: <span class="path"></span> <span class="sub">(읽는 중…)</span>';
+  $('rootInfo').querySelector('.path').textContent = root.name;
+  groups = [];
+  const direct = await listPng(root);
+  if (direct.length) groups.push({ direct: true, name: root.name, dir: root, files: direct, checked: true });
+  const subs = [];
+  for await (const [name, h] of root.entries()) if (h.kind === 'directory') subs.push([name, h]);
+  subs.sort((a, b) => a[0].localeCompare(b[0], 'ko', { numeric: true }));
+  const names = new Set(subs.map(s => s[0]));
+  for (const [name, h] of subs) {
+    const files = await listPng(h);
+    if (!files.length) continue;
+    const suf = $('suffix').value.trim() || '2';
+    const isOutput = name === DIRECT_OUT || (name.endsWith(suf) && names.has(name.slice(0, -suf.length)));
+    groups.push({ direct: false, name, dir: h, files, checked: false, isOutput });
+  }
+  const cand = groups.filter(g => !g.direct && !g.isOutput);
+  if (!direct.length && cand.length === 1) cand[0].checked = true;
+  $('rootInfo').innerHTML = '고른 폴더: <span class="path"></span> <span class="sub">· 지울 폴더를 체크하세요</span>';
+  $('rootInfo').querySelector('.path').textContent = root.name;
+  renderFolders(); updatePlan(); msg('');
+};
 
 $('depth').oninput = () => { $('depthv').textContent = $('depth').value; };
-$('redo').onclick = async () => {
-  busy = results.length; total = results.length; done = 0; refresh();
-  for (const r of results) {
-    setStatus(`다시 지우는 중… ${done + 1} / ${total}  (${r.name})`);
-    await sleep();
-    r.blob = await convert(r.file);
-    URL.revokeObjectURL(r.out.src); r.out.src = URL.createObjectURL(r.blob);
-    done++; busy--; refresh();
-  }
-  setStatus(`깊이 ${$('depth').value}로 ${results.length}장 다시 지웠어요. 마음에 들면 저장하세요.`);
-};
+$('suffix').oninput = updatePlan;
 
-// 폴더째 끌어 놓기
-async function readEntry(entry, out) {
-  if (entry.isFile) out.push(await new Promise((ok, no) => entry.file(ok, no)));
-  else if (entry.isDirectory) {
-    const rd = entry.createReader();
-    for (;;) {
-      const ents = await new Promise((ok, no) => rd.readEntries(ok, no));
-      if (!ents.length) break;
-      for (const e of ents) await readEntry(e, out);
-    }
-  }
+function thumb(src, size) {
+  const c = document.createElement('canvas'), s = Math.min(1, size / Math.max(src.width, src.height));
+  c.width = Math.max(1, Math.round(src.width * s)); c.height = Math.max(1, Math.round(src.height * s));
+  c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+  return c;
 }
-const drop = $('drop');
-drop.onclick = () => $('pick').click();
-$('pick').onchange = e => { handle([...e.target.files]); e.target.value = ''; };
-['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('on'); }));
-['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('on'); }));
-drop.addEventListener('drop', async e => {
-  const items = [...e.dataTransfer.items].map(i => i.webkitGetAsEntry && i.webkitGetAsEntry()).filter(Boolean);
-  const files = [];
-  if (items.length) for (const en of items) await readEntry(en, files);
-  else files.push(...e.dataTransfer.files);
-  handle(files);
-});
 
-$('saveDir').onclick = async () => {
-  if (!window.showDirectoryPicker) { setStatus('이 브라우저는 폴더 저장을 못 해요. 크롬이나 엣지로 열거나 «ZIP으로 받기»를 쓰세요.', true); return; }
+async function processOne(fileHandle, factor) {
+  const file = await fileHandle.getFile();
+  const bmp = await createImageBitmap(file);
+  const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(bmp, 0, 0);
+  x.putImageData(removeOutline(x.getImageData(0, 0, c.width, c.height), $('dark').checked, factor), 0, 0);
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  return { bmp, canvas: c, blob };
+}
+
+async function save(dir, name, blob) {
+  const fh = await dir.getFileHandle(name, { create: true });
+  const ws = await fh.createWritable(); await ws.write(blob); await ws.close();
+}
+
+function addItem(it, bmp, canvas) {
+  const el = document.createElement('div'); el.className = 'item';
+  el.innerHTML = `<div class="pair"></div><div class="iname"></div><div class="iact"><button data-d="-0.5">덜 지우기</button><button data-d="0.5">더 지우기</button><span class="dv"></span></div>`;
+  const pair = el.querySelector('.pair');
+  it.a = thumb(bmp, 240); it.b = thumb(canvas, 240); pair.append(it.a, it.b);
+  el.querySelector('.iname').innerHTML = '<span></span> <span class="ifolder"></span>';
+  el.querySelector('.iname span').textContent = it.src.name;
+  el.querySelector('.ifolder').textContent = '→ ' + it.outLabel;
+  it.dv = el.querySelector('.dv'); it.dv.textContent = '깊이 ' + it.factor;
+  pair.onclick = () => openViewer(it);
+  el.querySelectorAll('.iact button').forEach(b => b.onclick = () => redoItem(it, +b.dataset.d));
+  it.el = el; $('grid').appendChild(el);
+  $('gcount').textContent = `· ${items.length}장`; $('c4').hidden = false;
+}
+
+async function redoItem(it, delta) {
+  if (running || it.el.classList.contains('busy')) return;
+  const f = Math.min(5, Math.max(1, it.factor + delta));
+  if (f === it.factor) { msg(delta < 0 ? '더 줄일 수 없어요 (최소 1).' : '더 늘릴 수 없어요 (최대 5).', 'err'); return; }
+  it.el.classList.add('busy'); await tick();
   try {
-    const dir = await window.showDirectoryPicker({ mode: 'readwrite' });
-    let n = 0;
-    for (const r of results) {
-      const fh = await dir.getFileHandle(r.name, { create: true });
-      const ws = await fh.createWritable(); await ws.write(r.blob); await ws.close();
-      n++; setStatus(`저장 중… ${n} / ${results.length}`);
+    const r = await processOne(it.src, f);
+    await save(it.outDir, it.src.name, r.blob);
+    it.factor = f; it.dv.textContent = '깊이 ' + f;
+    const nb = thumb(r.canvas, 240); it.b.replaceWith(nb); it.b = nb;
+    if (it.url) URL.revokeObjectURL(it.url); it.url = null;
+    msg(`«${it.src.name}» 깊이 ${f}로 다시 지워서 저장했어요.`, 'ok');
+  } catch (e) { msg(`«${it.src.name}» 다시 지우기 실패: ${e.message}`, 'err'); }
+  it.el.classList.remove('busy');
+}
+
+async function openViewer(it) {
+  const fA = await it.src.getFile();
+  const fB = await (await it.outDir.getFileHandle(it.src.name)).getFile();
+  $('vA').src = URL.createObjectURL(fA); $('vB').src = URL.createObjectURL(fB);
+  $('vcap').textContent = `${it.src.name} · 왼쪽 원본 / 오른쪽 결과 (깊이 ${it.factor}) · 아무 곳이나 누르면 닫기`;
+  $('viewer').classList.add('on');
+}
+$('viewer').onclick = () => { $('viewer').classList.remove('on'); URL.revokeObjectURL($('vA').src); URL.revokeObjectURL($('vB').src); };
+
+$('stop').onclick = () => { stopReq = true; $('stop').disabled = true; msg('지금 그림까지만 하고 멈춰요…'); };
+
+$('start').onclick = async () => {
+  const sel = groups.filter(g => g.checked);
+  const jobs = [];
+  for (const g of sel) for (const f of g.files) jobs.push({ g, f });
+  if (!jobs.length) return;
+  running = true; stopReq = false; items = []; $('grid').innerHTML = ''; $('c4').hidden = true;
+  $('start').disabled = true; $('pickRoot').disabled = true; $('stop').hidden = false; $('stop').disabled = false;
+  $('prog').hidden = false; $('sTotal').textContent = jobs.length; msg('');
+  const factor = +$('depth').value, skip = $('skip').checked;
+  const outDirs = new Map();
+  let done = 0, saved = 0, skipped = 0, failed = 0;
+  const t0 = performance.now();
+  const timer = setInterval(() => { $('sTime').textContent = fmt((performance.now() - t0) / 1000); }, 500);
+  try {
+    for (const g of sel) {
+      const on = outName(g);
+      if (!g.direct && on === g.name) throw new Error('새 폴더 이름이 원래 폴더와 같아요. 이름 뒤에 붙일 글자를 넣어 주세요.');
+      outDirs.set(g, await root.getDirectoryHandle(on, { create: true }));
     }
-    setStatus(`«${dir.name}» 폴더에 ${n}장 저장했어요. 원본 파일은 그대로예요.`);
-  } catch (e) { if (e.name !== 'AbortError') setStatus('저장하지 못했어요: ' + e.message, true); }
+    for (const { g, f } of jobs) {
+      if (stopReq) break;
+      $('sNow').textContent = (g.direct ? '' : g.name + ' / ') + f.name;
+      await tick();
+      const outDir = outDirs.get(g), outLabel = g.direct ? root.name + '\\' + DIRECT_OUT : outName(g);
+      try {
+        if (skip) {
+          let exists = true;
+          try { await outDir.getFileHandle(f.name); } catch { exists = false; }
+          if (exists) { skipped++; done++; continue; }
+        }
+        const r = await processOne(f, factor);
+        await save(outDir, f.name, r.blob);
+        saved++;
+        const it = { src: f, outDir, outLabel, factor };
+        items.push(it); addItem(it, r.bmp, r.canvas);
+      } catch (e) { console.error(e); failed++; }
+      done++;
+      $('sDone').textContent = done; $('barfill').style.width = (done / jobs.length * 100) + '%';
+      const el = (performance.now() - t0) / 1000;
+      $('sLeft').textContent = done < jobs.length ? fmt(el / done * (jobs.length - done)) : '-';
+    }
+    const where = sel.map(g => g.direct ? root.name + '\\' + DIRECT_OUT : root.name + '\\' + outName(g)).join(', ');
+    const parts = [`${saved}장 저장`]; if (skipped) parts.push(`${skipped}장 건너뜀`); if (failed) parts.push(`${failed}장 실패`);
+    msg(`${stopReq ? '멈췄어요' : '끝났어요'} · ${parts.join(' · ')} · 저장한 곳: ${where} · 원본은 그대로예요.`, failed ? 'err' : 'ok');
+  } catch (e) { msg('저장하지 못했어요: ' + e.message, 'err'); }
+  clearInterval(timer);
+  $('sTime').textContent = fmt((performance.now() - t0) / 1000); $('sNow').textContent = '-';
+  running = false; $('stop').hidden = true; $('pickRoot').disabled = false; updatePlan();
 };
-$('saveZip').onclick = async () => {
-  if (!window.JSZip) { setStatus('인터넷이 연결돼야 ZIP을 만들 수 있어요. «폴더 골라서 저장»을 쓰세요.', true); return; }
-  const z = new JSZip(); results.forEach(r => z.file(r.name, r.blob));
-  const blob = await z.generateAsync({ type: 'blob' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '흰선없음.zip'; a.click();
-};
-$('clear').onclick = () => { results.length = 0; total = done = 0; $('grid').innerHTML = ''; setStatus('비웠어요.'); refresh(); };
 </script>
 </body>
 </html>
