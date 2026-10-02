@@ -5,6 +5,7 @@
 # 쓰는 법 :
 #   python 흰선제거.py 그림.png                 → 그림_흰선없음.png
 #   python 흰선제거.py 폴더                     → 폴더 안 png/webp/jpg 전부, 폴더_흰선없음 에 같은 이름으로
+#   python 흰선제거.py 폴더 새폴더               → 결과를 새폴더 에 (없으면 만듦, 원본은 그대로)
 #   python 흰선제거.py 폴더 --덮어쓰기           → 원본 자리에 바로 저장 (먼저 백업할 것)
 #   --원래선 : 바깥 가장자리 1px 회색 번짐을 진하게 바꾸지 않고 그대로 둠
 # 필요 : pip install pillow numpy
@@ -64,7 +65,7 @@ def main():
         print(__doc__ or '쓰는 법 : python 흰선제거.py 그림또는폴더 [--덮어쓰기]'); return
     src = args[0]
     if os.path.isdir(src):
-        dst = src if over else src.rstrip('\\/') + '_흰선없음'
+        dst = src if over else (args[1] if len(args) > 1 else src.rstrip('\\/') + '_흰선없음')
         os.makedirs(dst, exist_ok=True)
         files = [f for f in sorted(os.listdir(src)) if f.lower().endswith(EXT)]
         for i, f in enumerate(files, 1):
