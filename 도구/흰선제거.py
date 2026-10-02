@@ -30,14 +30,14 @@ def 흰선제거(img, 가장자리진하게=True):
     mx = im.max(-1); mn = im.min(-1)
     if 투명:
         bg = al < 16
-        light = ((mn > 150) & ((mx - mn) < 70)) | (al < 160)        # 흰색 · 반투명 번짐
+        light = ((mn > 215) & ((mx - mn) < 35)) | ((al < 160) & (mn > 120))   # 새하얀 점 · 반투명 흰 번짐
     else:
         bgc = np.median(im[:20, :20].reshape(-1, 3), 0)              # 왼쪽 위 구석 = 바탕색
         bg = np.abs(im - bgc).sum(-1) < 70
         d = np.array([255., 255., 255.]) - bgc                        # 흰색 ↔ 바탕색 사이 섞인 점 찾기
         t = np.clip(((im - bgc) @ d) / (d @ d), 0, 1)
-        light = (np.abs(im - (bgc + t[..., None] * d)).sum(-1) < 75) | ((mn > 140) & ((mx - mn) < 70))
-    white = (mn > 190) & ((mx - mn) < 45)
+        light = ((np.abs(im - (bgc + t[..., None] * d)).sum(-1) < 45) & (t > 0.1)) | ((mn > 215) & ((mx - mn) < 35))
+    white = (mn > 215) & ((mx - mn) < 35)
     gray = (lum > 100) & ((mx - mn) < 60)
     cur = bg.copy()
     for _ in range(4):
@@ -45,11 +45,11 @@ def 흰선제거(img, 가장자리진하게=True):
             grow = dil(cur) & ~cur & light
             if not grow.any(): break
             cur |= grow
-        jump = dil(cur, 3) & ~cur & white                             # 얇은 선 건너 흰 조각
+        jump = dil(cur, 2) & ~cur & white                             # 얇은 선 건너 흰 조각
         if not jump.any(): break
         cur |= jump
         light = light | white
-    for _ in range(3):                                                # 흰색과 진한 선 사이 회색 번짐
+    for _ in range(1):                                                # 흰색과 진한 선 사이 회색 번짐
         grow = dil(cur) & ~cur & gray
         if not grow.any(): break
         cur |= grow

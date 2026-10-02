@@ -99,14 +99,14 @@ function removeOutline(img, darken) {
     if (trans) {
       const a = d[i * 4 + 3];
       if (a < 16) cur[i] = 1;
-      if ((mn > 150 && mx - mn < 70) || a < 160) light[i] = 1;
+      if ((mn > 215 && mx - mn < 35) || (a < 160 && mn > 120)) light[i] = 1;
     } else {
       if (Math.abs(r - br) + Math.abs(g - bgc) + Math.abs(b - bb) < 70) cur[i] = 1;
       let t = ((r - br) * dx + (g - bgc) * dy + (b - bb) * dz) / dd; t = t < 0 ? 0 : t > 1 ? 1 : t;
       const off = Math.abs(r - (br + t * dx)) + Math.abs(g - (bgc + t * dy)) + Math.abs(b - (bb + t * dz));
-      if (off < 75 || (mn > 140 && mx - mn < 70)) light[i] = 1;
+      if ((off < 45 && t > 0.1) || (mn > 215 && mx - mn < 35)) light[i] = 1;
     }
-    if (mn > 190 && mx - mn < 45) white[i] = 1;
+    if (mn > 215 && mx - mn < 35) white[i] = 1;
     if (lum > 100 && mx - mn < 60) gray[i] = 1;
     if (lum > 60 && mx - mn < 60) softc[i] = 1;
   }
@@ -129,14 +129,14 @@ function removeOutline(img, darken) {
   }
   for (let k = 0; k < 4; k++) {
     flood(light);
-    const D = dilate(cur, w, h, 3);
+    const D = dilate(cur, w, h, 2);
     let added = false;
     for (let i = 0; i < N; i++) if (D[i] && !cur[i] && white[i]) { cur[i] = 1; added = true; }
     if (!added) break;
     for (let i = 0; i < N; i++) if (white[i]) light[i] = 1;
     if (k === 3) flood(light);
   }
-  for (let k = 0; k < 3; k++) {
+  for (let k = 0; k < 1; k++) {
     const D = dilate(cur, w, h, 1);
     let added = false;
     for (let i = 0; i < N; i++) if (D[i] && !cur[i] && gray[i]) { cur[i] = 1; added = true; }
