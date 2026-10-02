@@ -8,6 +8,7 @@
 #   python 흰선제거.py 폴더 새폴더               → 결과를 새폴더 에 (없으면 만듦, 원본은 그대로)
 #   python 흰선제거.py 폴더 --덮어쓰기           → 원본 자리에 바로 저장 (먼저 백업할 것)
 #   --원래선 : 바깥 가장자리 1px 회색 번짐을 진하게 바꾸지 않고 그대로 둠
+#   --깊이=1.5 : 지우는 깊이 (기본 2.5). 흰 털 · 흰 옷이 깎이면 줄이고, 흰 선이 남으면 늘림
 # 필요 : pip install pillow numpy
 import sys, os
 import numpy as np
@@ -31,7 +32,7 @@ def 선두께(bg, light):                                               # 바탕
                 while x + 1 + n < W and lr[x + 1 + n] and n < 80: n += 1
                 if n: runs.append(n)
     return float(np.median(runs)) if runs else 4.0
-def 흰선제거(img, 가장자리진하게=True):
+def 흰선제거(img, 가장자리진하게=True, 깊이=2.5):
     rgba = np.array(img.convert('RGBA')).astype(float)
     im, al = rgba[..., :3], rgba[..., 3]
     투명 = al[:20, :20].mean() < 16
@@ -48,7 +49,7 @@ def 흰선제거(img, 가장자리진하게=True):
         t = np.clip(((im - bgc) @ d) / (d @ d), 0, 1)
         light = ((np.abs(im - (bgc + t[..., None] * d)).sum(-1) < 45) & (t > 0.1)) | ((mn > 215) & ((mx - mn) < 35))
     gray = (lum > 100) & ((mx - mn) < 60)
-    한도 = max(6, int(round(선두께(bg, light) * 2.5)))                 # 테두리 두께의 2.5배까지만 안쪽으로 (흰 털 · 흰 옷 보호)
+    한도 = max(6, int(round(선두께(bg, light) * 깊이)))                 # 테두리 두께의 2.5배까지만 안쪽으로 (흰 털 · 흰 옷 보호)
     cur = bg.copy()
     for _ in range(한도):
         grow = dil(cur) & ~cur & light
@@ -72,6 +73,7 @@ def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     over = '--덮어쓰기' in sys.argv
     dark = '--원래선' not in sys.argv
+    depth = next((float(a.split('=', 1)[1]) for a in sys.argv if a.startswith('--깊이=')), 2.5)
     if not args:
         print(__doc__ or '쓰는 법 : python 흰선제거.py 그림또는폴더 [--덮어쓰기]'); return
     src = args[0]
@@ -80,14 +82,14 @@ def main():
         os.makedirs(dst, exist_ok=True)
         files = [f for f in sorted(os.listdir(src)) if f.lower().endswith(EXT)]
         for i, f in enumerate(files, 1):
-            o = 흰선제거(Image.open(os.path.join(src, f)), dark)
+            o = 흰선제거(Image.open(os.path.join(src, f)), dark, depth)
             o.save(os.path.join(dst, os.path.splitext(f)[0] + '.png'))
             print(f'{i}/{len(files)}  {f}')
         print('끝 →', dst)
     else:
         base, _ = os.path.splitext(src)
         out = base + '.png' if over else base + '_흰선없음.png'
-        흰선제거(Image.open(src), dark).save(out)
+        흰선제거(Image.open(src), dark, depth).save(out)
         print('끝 →', out)
 
 if __name__ == '__main__':
