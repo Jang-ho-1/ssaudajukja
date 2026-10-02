@@ -26,7 +26,7 @@
   #grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
   .item { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:8px; }
   .pair { display:grid; grid-template-columns:1fr 1fr; gap:4px; }
-  .pair img { width:100%; aspect-ratio:1; object-fit:contain; background:#00b140; border-radius:6px; }
+  .pair img { width:100%; aspect-ratio:1; object-fit:contain; border-radius:6px; background:#3a3f52 conic-gradient(#454b60 25%, transparent 0 50%, #454b60 0 75%, transparent 0) 0 0/16px 16px; image-rendering:pixelated; }
   .name { font-size:13px; color:var(--sub); margin-top:6px; word-break:break-all; }
   .bar { height:6px; background:var(--line); border-radius:3px; overflow:hidden; margin-top:4px; }
   .bar i { display:block; height:100%; width:0; background:var(--acc); transition:width .2s; }
@@ -35,7 +35,7 @@
 <body>
 <main>
   <h1>흰선 지우개</h1>
-  <p class="sub">초록 바탕 캐릭터 그림의 흰 테두리만 지워요. 원본 파일은 건드리지 않고, 고른 폴더에 같은 이름(.png)으로 저장해요.</p>
+  <p class="sub">초록 바탕 · 투명 바탕 캐릭터 그림의 흰 테두리만 지워요. 원본 파일은 건드리지 않고, 고른 폴더에 같은 이름(.png)으로 저장해요.</p>
 
   <div id="drop">
     <b>여기에 사진을 끌어다 놓으세요</b><br>
@@ -80,6 +80,9 @@ function dilate(m, w, h, n) {
 
 function removeOutline(img, darken) {
   const w = img.width, h = img.height, d = img.data, N = w * h;
+  let asum = 0, acnt = 0;
+  for (let y = 0; y < Math.min(20, h); y++) for (let x = 0; x < Math.min(20, w); x++) { asum += d[(y * w + x) * 4 + 3]; acnt++; }
+  const trans = asum / acnt < 16;            // 왼쪽 위 구석이 투명 = 투명 바탕 그림
   const cs = [[], [], []];
   for (let y = 0; y < Math.min(20, h); y++) for (let x = 0; x < Math.min(20, w); x++) {
     const p = (y * w + x) * 4; cs[0].push(d[p]); cs[1].push(d[p + 1]); cs[2].push(d[p + 2]);
@@ -93,10 +96,16 @@ function removeOutline(img, darken) {
   for (let i = 0; i < N; i++) {
     const r = d[i * 4], g = d[i * 4 + 1], b = d[i * 4 + 2];
     const mx = Math.max(r, g, b), mn = Math.min(r, g, b), lum = r * .3 + g * .59 + b * .11;
-    if (Math.abs(r - br) + Math.abs(g - bgc) + Math.abs(b - bb) < 70) cur[i] = 1;
-    let t = ((r - br) * dx + (g - bgc) * dy + (b - bb) * dz) / dd; t = t < 0 ? 0 : t > 1 ? 1 : t;
-    const off = Math.abs(r - (br + t * dx)) + Math.abs(g - (bgc + t * dy)) + Math.abs(b - (bb + t * dz));
-    if (off < 75 || (mn > 140 && mx - mn < 70)) light[i] = 1;
+    if (trans) {
+      const a = d[i * 4 + 3];
+      if (a < 16) cur[i] = 1;
+      if ((mn > 150 && mx - mn < 70) || a < 160) light[i] = 1;
+    } else {
+      if (Math.abs(r - br) + Math.abs(g - bgc) + Math.abs(b - bb) < 70) cur[i] = 1;
+      let t = ((r - br) * dx + (g - bgc) * dy + (b - bb) * dz) / dd; t = t < 0 ? 0 : t > 1 ? 1 : t;
+      const off = Math.abs(r - (br + t * dx)) + Math.abs(g - (bgc + t * dy)) + Math.abs(b - (bb + t * dz));
+      if (off < 75 || (mn > 140 && mx - mn < 70)) light[i] = 1;
+    }
     if (mn > 190 && mx - mn < 45) white[i] = 1;
     if (lum > 100 && mx - mn < 60) gray[i] = 1;
     if (lum > 60 && mx - mn < 60) softc[i] = 1;
@@ -139,7 +148,10 @@ function removeOutline(img, darken) {
       d[i * 4] *= .45; d[i * 4 + 1] *= .45; d[i * 4 + 2] *= .45;
     }
   }
-  for (let i = 0; i < N; i++) if (cur[i]) { d[i * 4] = br; d[i * 4 + 1] = bgc; d[i * 4 + 2] = bb; d[i * 4 + 3] = 255; }
+  for (let i = 0; i < N; i++) if (cur[i]) {
+    if (trans) { d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = d[i * 4 + 3] = 0; }      // 지운 자리는 투명하게
+    else { d[i * 4] = br; d[i * 4 + 1] = bgc; d[i * 4 + 2] = bb; d[i * 4 + 3] = 255; }
+  }
   return img;
 }
 

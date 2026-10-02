@@ -1,4 +1,4 @@
-# 흰 테두리 지우기 : 초록 바탕 캐릭터 그림에서 몸 둘레 흰 선(스티커 테두리)만 깎아 냄
+# 흰 테두리 지우기 : 초록 바탕(또는 투명 바탕) 캐릭터 그림에서 몸 둘레 흰 선(스티커 테두리)만 깎아 냄
 #   - 바탕(초록)에서 시작해 붙어 있는 흰색 · 흰+초록 섞인 점을 한 겹씩 지우고, 캐릭터의 진한 선을 만나면 멈춤
 #   - 1~2px 짜리 얇은 회색 선 뒤에 숨은 흰 조각(머리띠와 머리 사이 등)도 건너가서 지움
 #   - 안쪽 흰색(눈 흰자 · 셔츠 · 흰 옷)은 진한 선으로 둘러싸여 있으면 그대로 남음
@@ -22,15 +22,21 @@ def dil(m, n=1):
     return m
 
 def 흰선제거(img, 가장자리진하게=True):
-    im = np.array(img.convert('RGB')).astype(float)
-    bgc = np.median(im[:20, :20].reshape(-1, 3), 0)                  # 왼쪽 위 구석 = 바탕색
+    rgba = np.array(img.convert('RGBA')).astype(float)
+    im, al = rgba[..., :3], rgba[..., 3]
+    투명 = al[:20, :20].mean() < 16                                   # 왼쪽 위 구석이 투명 = 투명 바탕 그림
     r, g, b = im[..., 0], im[..., 1], im[..., 2]
     lum = r * 0.3 + g * 0.59 + b * 0.11
     mx = im.max(-1); mn = im.min(-1)
-    bg = np.abs(im - bgc).sum(-1) < 70
-    d = np.array([255., 255., 255.]) - bgc                            # 흰색 ↔ 바탕색 사이 섞인 점 찾기
-    t = np.clip(((im - bgc) @ d) / (d @ d), 0, 1)
-    light = (np.abs(im - (bgc + t[..., None] * d)).sum(-1) < 75) | ((mn > 140) & ((mx - mn) < 70))
+    if 투명:
+        bg = al < 16
+        light = ((mn > 150) & ((mx - mn) < 70)) | (al < 160)        # 흰색 · 반투명 번짐
+    else:
+        bgc = np.median(im[:20, :20].reshape(-1, 3), 0)              # 왼쪽 위 구석 = 바탕색
+        bg = np.abs(im - bgc).sum(-1) < 70
+        d = np.array([255., 255., 255.]) - bgc                        # 흰색 ↔ 바탕색 사이 섞인 점 찾기
+        t = np.clip(((im - bgc) @ d) / (d @ d), 0, 1)
+        light = (np.abs(im - (bgc + t[..., None] * d)).sum(-1) < 75) | ((mn > 140) & ((mx - mn) < 70))
     white = (mn > 190) & ((mx - mn) < 45)
     gray = (lum > 100) & ((mx - mn) < 60)
     cur = bg.copy()
@@ -47,13 +53,16 @@ def 흰선제거(img, 가장자리진하게=True):
         grow = dil(cur) & ~cur & gray
         if not grow.any(): break
         cur |= grow
-    out = im.copy()
+    out = rgba.copy()
     edge = dil(cur) & ~cur
     soft = edge & (lum > 60) & ((mx - mn) < 60)
     if 가장자리진하게:
-        out[soft] = out[soft] * 0.45                                  # 가장자리 연한 점은 선 색으로 (끄려면 --원래선)
-    out[cur] = bgc
-    return Image.fromarray(out.astype('uint8'))
+        out[soft, :3] = out[soft, :3] * 0.45                          # 가장자리 연한 점은 선 색으로 (끄려면 --원래선)
+    if 투명:
+        out[cur] = 0                                                  # 지운 자리는 투명하게
+        return Image.fromarray(out.astype('uint8'), 'RGBA')
+    out[cur, :3] = bgc
+    return Image.fromarray(out[..., :3].astype('uint8'))
 
 EXT = ('.png', '.webp', '.jpg', '.jpeg')
 
