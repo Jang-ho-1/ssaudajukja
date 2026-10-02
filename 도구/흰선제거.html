@@ -49,7 +49,12 @@
     <button id="clear" disabled>비우기</button>
     <label class="opt"><input id="dark" type="checkbox" checked> 가장자리 회색 번짐을 선 색으로 정리</label>
   </div>
-  <div id="status">사진을 넣으면 바로 흰 선을 지워서 아래에 보여 줘요. (왼쪽 원본 · 오른쪽 결과)</div>
+  <div class="row">
+    <label class="opt">지우는 깊이 <input id="depth" type="range" min="1" max="5" step="0.5" value="2.5"> <b id="depthv">2.5</b></label>
+    <button id="redo" disabled>이 설정으로 전부 다시 지우기</button>
+    <span class="sub" style="margin:0">흰 털 · 흰 옷이 같이 지워지면 ← 줄이고, 흰 선이 덜 지워지면 → 늘리세요.</span>
+  </div>
+  <div id="status">사진을 넣으면 바로 흰 선을 지워서 아래에 보여 줘요. (왼쪽 원본 · 오른쪽 결과 · 그림을 누르면 크게 보기)</div>
   <div class="bar"><i id="prog"></i></div>
   <div id="grid" style="margin-top:14px"></div>
 </main>
@@ -57,7 +62,7 @@
 <script>
 // ── 흰 테두리 지우기 (도구/흰선제거.py 와 같은 방식) ──
 //   바탕(왼쪽 위 구석 색)에서 시작해 붙어 있는 흰색 · 흰+초록 섞인 점을 지우고, 진한 선을 만나면 멈춤
-//   1~2px 회색 선 뒤에 숨은 흰 조각도 건너가서 지움 · 안쪽 흰색(눈 흰자 · 흰 옷)은 그대로
+//   선은 건너뛰지 않고 테두리 두께의 2.5배보다 깊이는 안 들어감 · 안쪽 흰색(눈 흰자 · 흰 털 · 흰 옷)은 그대로
 function dilate(m, w, h, n) {
   let cur = m;
   for (let k = 0; k < n; k++) {
@@ -78,7 +83,7 @@ function dilate(m, w, h, n) {
   return cur;
 }
 
-function removeOutline(img, darken) {
+function removeOutline(img, darken, factor) {
   const w = img.width, h = img.height, d = img.data, N = w * h;
   let asum = 0, acnt = 0;
   for (let y = 0; y < Math.min(20, h); y++) for (let x = 0; x < Math.min(20, w); x++) { asum += d[(y * w + x) * 4 + 3]; acnt++; }
@@ -111,36 +116,32 @@ function removeOutline(img, darken) {
     if (lum > 60 && mx - mn < 60) softc[i] = 1;
   }
 
-  const q = new Int32Array(N);
-  function flood(mask) {
-    let head = 0, tail = 0;
-    for (let i = 0; i < N; i++) if (cur[i]) q[tail++] = i;
-    while (head < tail) {
-      const i = q[head++], x = i % w, y = (i / w) | 0;
-      for (let yy = y - 1; yy <= y + 1; yy++) {
-        if (yy < 0 || yy >= h) continue;
-        for (let xx = x - 1; xx <= x + 1; xx++) {
-          if (xx < 0 || xx >= w) continue;
-          const j = yy * w + xx;
-          if (!cur[j] && mask[j]) { cur[j] = 1; q[tail++] = j; }
-        }
-      }
-    }
+  // 흰 테두리 두께 : 바탕에서 안쪽으로 흰 점이 이어지는 길이의 중간값
+  const runs = [];
+  for (let y = 0; y < h; y += 3) for (let x = 0; x < w - 1; x++) {
+    const i = y * w + x;
+    if (cur[i] && !cur[i + 1]) { let n = 0; while (x + 1 + n < w && light[i + 1 + n] && n < 80) n++; if (n) runs.push(n); }
+    if (!cur[i] && cur[i + 1]) { let n = 0; while (x - n >= 0 && light[i - n] && n < 80) n++; if (n) runs.push(n); }
   }
-  for (let k = 0; k < 4; k++) {
-    flood(light);
-    const D = dilate(cur, w, h, 2);
-    let added = false;
-    for (let i = 0; i < N; i++) if (D[i] && !cur[i] && white[i]) { cur[i] = 1; added = true; }
-    if (!added) break;
-    for (let i = 0; i < N; i++) if (white[i]) light[i] = 1;
-    if (k === 3) flood(light);
+  for (let x = 0; x < w; x += 3) for (let y = 0; y < h - 1; y++) {
+    const i = y * w + x;
+    if (cur[i] && !cur[i + w]) { let n = 0; while (y + 1 + n < h && light[i + (1 + n) * w] && n < 80) n++; if (n) runs.push(n); }
+    if (!cur[i] && cur[i + w]) { let n = 0; while (y - n >= 0 && light[i - n * w] && n < 80) n++; if (n) runs.push(n); }
   }
-  for (let k = 0; k < 1; k++) {
+  runs.sort((p, q) => p - q);
+  const width = runs.length ? (runs.length % 2 ? runs[runs.length >> 1] : (runs[runs.length / 2 - 1] + runs[runs.length / 2]) / 2) : 4;
+  const limit = Math.max(6, Math.round(width * (factor || 2.5)));     // 테두리 두께의 2.5배까지만 안쪽으로 (흰 털 · 흰 옷 보호)
+
+  // 바탕에서 한 겹씩 (선은 건너뛰지 않음)
+  for (let k = 0; k < limit; k++) {
     const D = dilate(cur, w, h, 1);
     let added = false;
-    for (let i = 0; i < N; i++) if (D[i] && !cur[i] && gray[i]) { cur[i] = 1; added = true; }
+    for (let i = 0; i < N; i++) if (D[i] && !cur[i] && light[i]) { cur[i] = 1; added = true; }
     if (!added) break;
+  }
+  {
+    const D = dilate(cur, w, h, 1);
+    for (let i = 0; i < N; i++) if (D[i] && !cur[i] && gray[i]) cur[i] = 1;
   }
   if (darken) {
     const D = dilate(cur, w, h, 1);
@@ -157,15 +158,23 @@ function removeOutline(img, darken) {
 
 // ── 화면 ──
 const $ = id => document.getElementById(id);
-const results = [];   // { name, blob }
+const results = [];   // { file, name, blob, out }
 const sleep = () => new Promise(r => setTimeout(r, 0));
 let busy = 0, total = 0, done = 0;
 
 function setStatus(t, warn) { $('status').textContent = t; $('status').className = warn ? 'warn' : ''; }
 function refresh() {
   const ok = results.length > 0 && busy === 0;
-  $('saveDir').disabled = !ok; $('saveZip').disabled = !ok; $('clear').disabled = results.length === 0 && busy === 0;
+  $('saveDir').disabled = !ok; $('saveZip').disabled = !ok; $('redo').disabled = !ok; $('clear').disabled = results.length === 0 && busy === 0;
   $('prog').style.width = total ? (done / total * 100) + '%' : '0';
+}
+
+async function convert(f) {
+  const bmp = await createImageBitmap(f);
+  const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
+  const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(bmp, 0, 0);
+  x.putImageData(removeOutline(x.getImageData(0, 0, c.width, c.height), $('dark').checked, +$('depth').value), 0, 0);
+  return new Promise(r => c.toBlob(r, 'image/png'));
 }
 
 async function handle(files) {
@@ -176,25 +185,34 @@ async function handle(files) {
     setStatus(`지우는 중… ${done + 1} / ${total}  (${f.name})`);
     await sleep();
     try {
-      const bmp = await createImageBitmap(f);
-      const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
-      const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(bmp, 0, 0);
-      const data = removeOutline(x.getImageData(0, 0, c.width, c.height), $('dark').checked);
-      x.putImageData(data, 0, 0);
-      const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+      const blob = await convert(f);
       const name = f.name.replace(/\.[^.]+$/, '') + '.png';
-      results.push({ name, blob });
       const it = document.createElement('div'); it.className = 'item';
       it.innerHTML = `<div class="pair"><img alt="원본"><img alt="결과"></div><div class="name"></div>`;
-      it.querySelectorAll('img')[0].src = URL.createObjectURL(f);
-      it.querySelectorAll('img')[1].src = URL.createObjectURL(blob);
+      const imgs = it.querySelectorAll('img');
+      imgs[0].src = URL.createObjectURL(f); imgs[1].src = URL.createObjectURL(blob);
+      imgs.forEach(im => { im.style.cursor = 'zoom-in'; im.title = '클릭하면 크게 보기'; im.onclick = () => window.open(im.src); });
       it.querySelector('.name').textContent = name;
       $('grid').appendChild(it);
+      results.push({ file: f, name, blob, out: imgs[1] });
     } catch (e) { console.error(e); setStatus(`${f.name} : 열 수 없는 파일이에요.`, true); }
     done++; busy--; refresh();
   }
   setStatus(`${results.length}장 완료. «폴더 골라서 저장»을 누르고 새 폴더(예: 군인 착용2)를 만들어 고르세요.`);
 }
+
+$('depth').oninput = () => { $('depthv').textContent = $('depth').value; };
+$('redo').onclick = async () => {
+  busy = results.length; total = results.length; done = 0; refresh();
+  for (const r of results) {
+    setStatus(`다시 지우는 중… ${done + 1} / ${total}  (${r.name})`);
+    await sleep();
+    r.blob = await convert(r.file);
+    URL.revokeObjectURL(r.out.src); r.out.src = URL.createObjectURL(r.blob);
+    done++; busy--; refresh();
+  }
+  setStatus(`깊이 ${$('depth').value}로 ${results.length}장 다시 지웠어요. 마음에 들면 저장하세요.`);
+};
 
 // 폴더째 끌어 놓기
 async function readEntry(entry, out) {

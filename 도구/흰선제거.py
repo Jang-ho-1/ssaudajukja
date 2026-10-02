@@ -1,6 +1,6 @@
 # 흰 테두리 지우기 : 초록 바탕(또는 투명 바탕) 캐릭터 그림에서 몸 둘레 흰 선(스티커 테두리)만 깎아 냄
 #   - 바탕(초록)에서 시작해 붙어 있는 흰색 · 흰+초록 섞인 점을 한 겹씩 지우고, 캐릭터의 진한 선을 만나면 멈춤
-#   - 1~2px 짜리 얇은 회색 선 뒤에 숨은 흰 조각(머리띠와 머리 사이 등)도 건너가서 지움
+#   - 선을 건너뛰지 않고, 테두리 두께의 2.5배보다 깊이는 안 들어감 → 테두리에 붙은 흰 털 · 흰 옷도 남음
 #   - 안쪽 흰색(눈 흰자 · 셔츠 · 흰 옷)은 진한 선으로 둘러싸여 있으면 그대로 남음
 # 쓰는 법 :
 #   python 흰선제거.py 그림.png                 → 그림_흰선없음.png
@@ -20,44 +20,46 @@ def dil(m, n=1):
         d[1:, 1:] |= m[:-1, :-1]; d[:-1, :-1] |= m[1:, 1:]; d[1:, :-1] |= m[:-1, 1:]; d[:-1, 1:] |= m[1:, :-1]
         m = d
     return m
-
+def 선두께(bg, light):                                               # 바탕에서 안쪽으로 흰 점이 이어지는 길이의 중간값 = 흰 테두리 두께
+    runs = []
+    for M, L in [(bg, light), (bg.T, light.T), (bg[:, ::-1], light[:, ::-1]), (bg.T[:, ::-1], light.T[:, ::-1])]:
+        H, W = M.shape
+        for y in range(0, H, 3):
+            row, lr = M[y], L[y]
+            for x in np.nonzero(row[:-1] & ~row[1:])[0]:
+                n = 0
+                while x + 1 + n < W and lr[x + 1 + n] and n < 80: n += 1
+                if n: runs.append(n)
+    return float(np.median(runs)) if runs else 4.0
 def 흰선제거(img, 가장자리진하게=True):
     rgba = np.array(img.convert('RGBA')).astype(float)
     im, al = rgba[..., :3], rgba[..., 3]
-    투명 = al[:20, :20].mean() < 16                                   # 왼쪽 위 구석이 투명 = 투명 바탕 그림
+    투명 = al[:20, :20].mean() < 16
     r, g, b = im[..., 0], im[..., 1], im[..., 2]
     lum = r * 0.3 + g * 0.59 + b * 0.11
     mx = im.max(-1); mn = im.min(-1)
     if 투명:
         bg = al < 16
-        light = ((mn > 215) & ((mx - mn) < 35)) | ((al < 160) & (mn > 120))   # 새하얀 점 · 반투명 흰 번짐
+        light = ((mn > 215) & ((mx - mn) < 35)) | ((al < 160) & (mn > 120))
     else:
-        bgc = np.median(im[:20, :20].reshape(-1, 3), 0)              # 왼쪽 위 구석 = 바탕색
+        bgc = np.median(im[:20, :20].reshape(-1, 3), 0)
         bg = np.abs(im - bgc).sum(-1) < 70
-        d = np.array([255., 255., 255.]) - bgc                        # 흰색 ↔ 바탕색 사이 섞인 점 찾기
+        d = np.array([255., 255., 255.]) - bgc
         t = np.clip(((im - bgc) @ d) / (d @ d), 0, 1)
         light = ((np.abs(im - (bgc + t[..., None] * d)).sum(-1) < 45) & (t > 0.1)) | ((mn > 215) & ((mx - mn) < 35))
-    white = (mn > 215) & ((mx - mn) < 35)
     gray = (lum > 100) & ((mx - mn) < 60)
+    한도 = max(6, int(round(선두께(bg, light) * 2.5)))                 # 테두리 두께의 2.5배까지만 안쪽으로 (흰 털 · 흰 옷 보호)
     cur = bg.copy()
-    for _ in range(4):
-        for _ in range(40):
-            grow = dil(cur) & ~cur & light
-            if not grow.any(): break
-            cur |= grow
-        jump = dil(cur, 2) & ~cur & white                             # 얇은 선 건너 흰 조각
-        if not jump.any(): break
-        cur |= jump
-        light = light | white
-    for _ in range(1):                                                # 흰색과 진한 선 사이 회색 번짐
-        grow = dil(cur) & ~cur & gray
+    for _ in range(한도):
+        grow = dil(cur) & ~cur & light
         if not grow.any(): break
         cur |= grow
+    grow = dil(cur) & ~cur & gray
+    cur |= grow
     out = rgba.copy()
     edge = dil(cur) & ~cur
     soft = edge & (lum > 60) & ((mx - mn) < 60)
-    if 가장자리진하게:
-        out[soft, :3] = out[soft, :3] * 0.45                          # 가장자리 연한 점은 선 색으로 (끄려면 --원래선)
+    if 가장자리진하게: out[soft, :3] *= 0.45
     if 투명:
         out[cur] = 0                                                  # 지운 자리는 투명하게
         return Image.fromarray(out.astype('uint8'), 'RGBA')
