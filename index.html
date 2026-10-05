@@ -93,7 +93,7 @@ canvas{display:block;cursor:default}
   show();
 })();
 </script>
-<script>const BUILD = "10-05 17:59", TEST_BUILD = false, FRIEND_BUILD = true;</script>
+<script>const BUILD = "10-05 19:06", TEST_BUILD = false, FRIEND_BUILD = true;</script>
 <script>
 'use strict';
 // ════════════════════════════════════════════════════════════════
@@ -16665,7 +16665,7 @@ function touchLayout() {
   //   AUTO 는 오른쪽 위 AUTO 단추를 그대로 누르면 됨
   //   10-05 : 사냥터 «마을로» 단추(AUTO 왼쪽 · x 1036~1136) 를 덮어 그 단추가 안 눌리던 것 → 그 왼쪽으로 옮김
   L.push({ k: 'esc', t: 'II', x: VW - 330, y: 143, r: 21, small: true });
-  if (G.map) L.push({ k: 'enter', t: '채팅', x: VW - 280, y: 143, r: 21, small: true });
+  if (G.map || (G.gm && G.gm.mode === 'dm')) L.push({ k: 'enter', t: '채팅', x: VW - 280, y: 143, r: 21, small: true });   // 10-05 : 데스매치에서도 대화
   return L;
 }
 function touchPt(t) { return cvPt(t.clientX, t.clientY); }   // 10-05 : 세로로 돌린 화면도 (p6_game cvPt)
@@ -27443,6 +27443,21 @@ drawHudMenu = function () {
 };
 window.drawHudMenu = drawHudMenu;
 Object.assign(window, { qwList, qwReadyN, QW });
+}
+</script>
+<script>
+// ════════════════════════════════════════════════════════════════
+//  휴대폰 단추 (10-05 주인님 : «휴대폰으로 완벽하게 버튼 다 눌러지게»)
+//   · 손가락으로 한 번 누르면 휴대폰이 뒤따라 «가짜 마우스 누름» 을 한 번 더 보냄 → 단추가 두 번 눌림
+//     (물약 가능/불가능 같은 켜고 끄는 단추가 켜졌다 바로 꺼져서 안 눌리는 것처럼 보였고, 창이 바뀌면 그 자리 단추가 또 눌렸음)
+//     → 손을 댄 뒤 0.9초 안에 캔버스로 오는 마우스 누름은 버림
+// ════════════════════════════════════════════════════════════════
+{
+let touchAt = -1e9; const mark = () => { touchAt = performance.now(); };
+window.addEventListener('touchstart', mark, { capture: true, passive: true });
+window.addEventListener('touchend', mark, { capture: true, passive: true });
+for (const ev of ['mousedown', 'mouseup', 'click']) window.addEventListener(ev, e => {
+  if (e.target === cv && performance.now() - touchAt < 900) { e.stopPropagation(); if (e.cancelable) e.preventDefault(); } }, true);
 }
 </script>
 <script>__ldDone()</script>
