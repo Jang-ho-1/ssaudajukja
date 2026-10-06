@@ -142,7 +142,7 @@ canvas{display:block;cursor:default}
   show();
 })();
 </script>
-<script>const BUILD = "10-06 15:51", TEST_BUILD = false, FRIEND_BUILD = true;</script>
+<script>const BUILD = "10-06 16:29", TEST_BUILD = false, FRIEND_BUILD = true;</script>
 <script>
 'use strict';
 // ════════════════════════════════════════════════════════════════
@@ -5767,7 +5767,8 @@ function render() {
 let DPR = 1;
 // 화질 : 휴대폰(손가락 화면)은 처음에 «보통» (그리는 점 수가 절반 아래로 → 렉이 줄어듦) · 설정에서 바꿈
 const COARSE = (() => { try { return matchMedia('(pointer: coarse)').matches; } catch (e) { return false; } })();
-function gfxLow() { const s = typeof SET !== 'undefined' ? SET.gfx : undefined; return s === 'lo' || (s === undefined && COARSE); }
+function gfxLow() { const s = typeof SET !== 'undefined' ? SET.gfx : undefined; return s === 'lo' || s === 'vlo' || (s === undefined && COARSE); }
+function gfxRes() { const s = typeof SET !== 'undefined' ? SET.gfx : undefined; return s === 'vlo' ? 0.7 : 1; }   // 10-06 : «가볍게» = 화면을 70% 크기로 그려 늘림 (휴대폰 그래픽이 느릴 때 · 그림 · 효과는 그대로)
 // 휴대폰 세로 (10-05) : 게임을 옆으로 돌려 화면을 가득 채움 — 폰을 가로로 들면 바로 보이고 (화면 회전 잠금이어도) 단추가 작아져 안 눌리던 것이 없어짐
 //   돌린 무대 = #wrap (캔버스) + #ov (HTML 창) 를 같이 돌림 · 누른 자리는 cvPt 로 되돌려 셈
 const ROT = { on: false };
@@ -5779,7 +5780,7 @@ function rotStage() { const W = window.innerWidth, H = window.innerHeight, on = 
     if (on) { s.width = H + 'px'; s.height = W + 'px'; s.left = ((W - H) / 2) + 'px'; s.top = ((H - W) / 2) + 'px'; s.right = 'auto'; s.bottom = 'auto'; s.transform = 'rotate(90deg)'; }
     else { s.width = s.height = s.left = s.top = s.right = s.bottom = s.transform = ''; } }
   return on ? [H, W] : [W, H]; }
-function fit() { const [w, h] = rotStage(); const k = Math.min(w / VW, h / VH); DPR = Math.min(gfxLow() ? 1 : 1.5, window.devicePixelRatio || 1); cv.width = Math.round(VW * DPR); cv.height = Math.round(VH * DPR); cv.style.width = Math.round(VW * k) + 'px'; cv.style.height = Math.round(VH * k) + 'px'; frame.dirty = true; }
+function fit() { const [w, h] = rotStage(); const k = Math.min(w / VW, h / VH); DPR = Math.min(gfxLow() ? 1 : 1.5, window.devicePixelRatio || 1) * gfxRes(); cv.width = Math.round(VW * DPR); cv.height = Math.round(VH * DPR); cv.style.width = Math.round(VW * k) + 'px'; cv.style.height = Math.round(VH * k) + 'px'; frame.dirty = true; }
 window.addEventListener('resize', fit); fit();
 let last = performance.now(), acc = 0, fpsT = 0, fpsN = 0;
 function frame(now) {
@@ -6373,10 +6374,11 @@ function sendChat() {
   const ov = document.getElementById('ov'); if (!ov) return;
   const box = document.createElement('div'); box.id = 'chatBox'; box.className = 'pn';
   box.innerHTML = '<div id="chatModes">' + CHAT_MODES.map(([k, nm]) => '<button data-m="' + k + '">' + nm + '</button>').join('') + '</div>'
-    + '<div style="display:flex;gap:6px;margin-top:6px"><input id="chatTo" type="text" maxlength="8" placeholder="닉네임" autocomplete="off" style="width:96px;flex:none"><input id="chatIn" type="text" maxlength="60" autocomplete="off" style="flex:1"></div>';
+    + '<div style="display:flex;gap:6px;margin-top:6px"><input id="chatTo" type="text" maxlength="8" placeholder="닉네임" autocomplete="off" style="width:96px;flex:none"><input id="chatIn" type="text" maxlength="60" autocomplete="off" enterkeyhint="send" style="flex:1;min-width:0"><button id="chatSend" type="button" style="flex:none;padding:0 16px;font:800 14px sans-serif;border-radius:8px;background:#4a3a1a;border:1px solid #ffd27a;color:#fff">보내기</button></div>';   // 10-06 : 휴대폰에서 보내기 단추 (주인님)
   ov.appendChild(box);
   box.querySelectorAll('[data-m]').forEach(el => { el.addEventListener('mousedown', e => e.preventDefault()); el.addEventListener('click', () => { chatSetMode(el.dataset.m); (CHAT.mode === 'whisper' && !document.getElementById('chatTo').value ? document.getElementById('chatTo') : document.getElementById('chatIn')).focus(); }); });
   const inp = box.querySelector('#chatIn'), to = box.querySelector('#chatTo');
+  { const sb = box.querySelector('#chatSend'); sb.addEventListener('mousedown', e => e.preventDefault()); sb.addEventListener('pointerdown', e => e.preventDefault()); sb.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); sendChat(); }); }   // 누르는 동안 글 칸 초점이 안 빠지게 (자판이 내려가며 창이 닫히지 않게)
   const cycle = () => { const i = CHAT_MODES.findIndex(v => v[0] === CHAT.mode); chatSetMode(CHAT_MODES[(i + 1) % CHAT_MODES.length][0]); };
   inp.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); sendChat(); } if (e.key === 'Tab') { e.preventDefault(); cycle(); } if (e.key === 'Escape') { e.preventDefault(); hideChat(); document.getElementById('c').focus(); } });
   to.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); CHAT.to = to.value.trim(); inp.focus(); } if (e.key === 'Escape') { e.preventDefault(); hideChat(); document.getElementById('c').focus(); } });
@@ -19770,7 +19772,8 @@ function drawSettings() {
   vrow('배경음악', bgmP, d => { const v = clamp(bgmP + d * 10, 0, 100); SET.bgm = true; SET.bgmV = v / 100; saveNow(); AU.init(); BGM.kick(); }, y + 78);
   row('화면 흔들림', SET.shake ? '켬' : '끔', () => { SET.shake = !SET.shake; saveNow(); }, y + 132);
   row('피해 숫자', SET.dmgnum ? '켬' : '끔', () => { SET.dmgnum = !SET.dmgnum; saveNow(); }, y + 186);
-  row('화질', gfxLow() ? '보통 (빠름)' : '높음', () => { SET.gfx = gfxLow() ? 'hi' : 'lo'; saveNow(); fit(); }, y + 240);
+  { const g0 = SET.gfx === 'vlo' ? 'vlo' : gfxLow() ? 'lo' : 'hi';   // 10-06 : 높음 → 보통 (빠름) → 가볍게 (화면 70%)
+    row('화질', g0 === 'vlo' ? '가볍게 (70%)' : g0 === 'lo' ? '보통 (빠름)' : '높음', () => { SET.gfx = g0 === 'hi' ? 'lo' : g0 === 'lo' ? 'vlo' : 'hi'; saveNow(); fit(); }, y + 240); }
   row('성능 표시', SET.perf ? '켬' : '끔', () => { SET.perf = !SET.perf; saveNow(); }, y + 294);
   const P = dusk ? plaqueBtn : btn, big = dusk ? 17 : 15;
   if (M.confirmReset) { P(x + 30, y + 362, 220, 44, '정말 모두 지우기', () => { STORE.accountWipe(); location.reload(); }, dusk ? { red: true, size: big } : { col: '#ff5a5a', size: big }); P(x + 270, y + 362, 220, 44, '취소', () => { M.confirmReset = false; }, { size: big }); }
@@ -28511,6 +28514,142 @@ const em0 = enterMap;
 enterMap = function (key, spawn, ...a) { const r = em0(key, spawn, ...a); const m = MAPS[key]; if (m && m.hidden) { const ch = curChar(); if (ch) { ch.hidSeen = ch.hidSeen || {}; if (!ch.hidSeen[key]) { ch.hidSeen[key] = 1; if (typeof saveNow === 'function') saveNow(); } } } return r; };
 window.enterMap = enterMap;
 Object.assign(window, { hidNm });
+}
+</script>
+<script>
+// ════════════════════════════════════════════════════════════════
+//  성능 표시 자세히 (10-06 · 휴대폰 마을 렉 찾기) : 켜 두면 오른쪽 아래 한 줄 위에 «배경 · 앞 · 사람 · 화면 UI» 가 각각 몇 ms 인지
+//   (끄면 아무것도 재지 않음 · 그림 · 효과는 그대로)
+// ════════════════════════════════════════════════════════════════
+{
+const PT = { bg: 0, near: 0, ui: 0, all: 0 }, PA = { bg: 0, near: 0, ui: 0, all: 0 };
+const timeIt = (name, key) => { const f0 = window[name]; if (typeof f0 !== 'function') return; const w = function () { if (!SET.perf) return f0.apply(this, arguments); const t = performance.now(); try { return f0.apply(this, arguments); } finally { PT[key] += performance.now() - t; } }; window[name] = w; try { eval(name + ' = w'); } catch (e) {} };
+timeIt('drawTownWorld', 'bg'); timeIt('drawFieldWorld', 'bg'); timeIt('drawTownNear', 'near'); timeIt('drawHUD', 'ui'); timeIt('renderMap', 'all');
+{ const pd0 = perfDraw; perfDraw = function (work, dt) { pd0(work, dt); for (const k in PT) { PA[k] = PA[k] * 0.9 + PT[k] * 0.1; PT[k] = 0; }
+    if (!G.map) return; const ppl = Math.max(0, PA.all - PA.bg - PA.near - PA.ui), t = '배경 ' + PA.bg.toFixed(1) + ' · 앞 ' + PA.near.toFixed(1) + ' · 사람·소품 ' + ppl.toFixed(1) + ' · 화면 ' + PA.ui.toFixed(1) + ' ms · 해상도 ' + Math.round(cv.width) + '×' + Math.round(cv.height);
+    ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.font = '600 12px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    const w = ctx.measureText(t).width + 14; ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(VW - w - 6, VH - 46, w, 20); ctx.fillStyle = '#d8e8ff'; ctx.fillText(t, VW - 13, VH - 30); ctx.restore(); }; window.perfDraw = perfDraw; }
+}
+</script>
+<script>
+// ════════════════════════════════════════════════════════════════
+//  서버 연결 1단계 (2026-10-06) : 게스트 계정 · 옮기기 코드 · 서버 저장 · 같은 채널 · 같은 맵 사람 보이기 · 채팅
+//   서버 주소가 없으면 예전처럼 이 기기만 (오프라인) — 주소 : NET_URL 상수 · 시험할 때는 주소 뒤 ?server=ws://…
+//   개인정보 · 비밀번호는 받지 않음 · 이 기기에는 계정 번호와 열쇠만 (sdj_acc)
+// ════════════════════════════════════════════════════════════════
+{
+const NET_URL = '';                                                               // 서울 서버를 빌리면 여기에 wss://… 를 넣음
+const ACC_KEY = 'sdj_acc';
+const qs = (() => { try { return new URLSearchParams(location.search).get('server'); } catch (e) { return null; } })();
+const NET = window.NET = { url: qs || NET_URL, ws: null, on: false, id: null, ch: 1, room: null, peers: new Map(), stT: 0, lastSt: '', dirty: false, saveT: 0, retry: 0, codeCb: null, moved: false };
+const accGet = () => { try { return JSON.parse(localStorage.getItem(ACC_KEY)) || null; } catch (e) { return null; } };
+const accSet = a => { try { localStorage.setItem(ACC_KEY, JSON.stringify(a)); } catch (e) {} };
+const send = o => { if (NET.ws && NET.ws.readyState === 1) NET.ws.send(JSON.stringify(o)); };
+const sys = s => { if (typeof chatSys === 'function') chatSys(s); else console.log('[서버]', s); };
+
+// ── 저장 : 이 기기에 저장할 때마다 시각을 붙이고 · 3초에 한 번 서버로 ──
+{ const sn0 = saveNow; saveNow = function () { try { SAVE._at = Date.now(); } catch (e) {} const r = sn0.apply(this, arguments); NET.dirty = true; return r; }; window.saveNow = saveNow; }
+function flushSave(force) { if (!NET.on || !NET.dirty) return; const now = Date.now(); if (!force && now - NET.saveT < 3000) return; NET.saveT = now; NET.dirty = false; send({ t: 'save', data: JSON.stringify(SAVE) }); }
+setInterval(() => flushSave(false), 1000);
+window.addEventListener('pagehide', () => flushSave(true));
+
+// ── 서버에서 받은 저장으로 바꾸기 (처음 접속 · 다른 기기에서 옮겨 왔을 때) ──
+function takeSave(raw, at) {
+  let s = null; try { s = JSON.parse(raw); } catch (e) { return false; }
+  if (!s || typeof s !== 'object') return false;
+  const localAt = (SAVE && SAVE._at) || 0;
+  if (!NET.moved && localAt > (at || 0) + 5000) { NET.dirty = true; flushSave(true); return false; }   // 이 기기 것이 더 새것이면 서버로 올림
+  for (const k of Object.keys(SAVE)) delete SAVE[k]; Object.assign(SAVE, s);
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(SAVE)); } catch (e) {}
+  return true;
+}
+
+// ── 접속 ──
+function connect() {
+  if (!NET.url || NET.ws) return;
+  let ws; try { ws = new WebSocket(NET.url); } catch (e) { return; }
+  NET.ws = ws;
+  ws.onopen = () => { NET.retry = 0; const a = accGet(); send(a && a.id && a.key ? { t: 'hello', id: a.id, key: a.key } : { t: 'hello' }); };
+  ws.onclose = () => { const was = NET.on; NET.ws = null; NET.on = false; NET.room = null; clearPeers(); if (was) sys('서버와 연결이 끊겼어요 · 다시 잇는 중');
+    if (!NET.kicked) setTimeout(connect, Math.min(15000, 1000 * Math.pow(2, NET.retry++))); };
+  ws.onmessage = ev => { let m; try { m = JSON.parse(ev.data); } catch (e) { return; } try { onMsg(m); } catch (e) { console.error('net', m && m.t, e); } };
+}
+function onMsg(m) {
+  switch (m.t) {
+    case 'welcome': {
+      if (m.key) accSet({ id: m.id, key: m.key }); NET.id = m.id; NET.on = true; NET.chs = m.chs; NET.moved = !!m.moved;
+      if (m.save) { const took = takeSave(m.save, m.at); if (took && m.moved) { sys('옮기기 코드로 이어서 할게요'); setTimeout(() => location.reload(), 600); return; } }
+      else { NET.dirty = true; flushSave(true); }                                  // 서버에 저장이 없으면 이 기기 것을 올림 (처음 한 번)
+      NET.room = null; sys('서버에 접속했어요 · 채널 ' + NET.ch); return;
+    }
+    case 'kick': NET.kicked = true; sys(m.why || '접속이 끊겼어요'); return;
+    case 'err': if (m.e === 'badkey') { sys('계정 열쇠가 맞지 않아요 · 옮기기 코드로 이어서 해 주세요'); NET.kicked = true; } else if (m.e === 'badname') sys('서버에서 쓸 수 없는 이름이에요 (한글 2~7글자 · 운영자 흉내 · 나쁜 말 안 됨)'); else if (m.e === 'full') sys('채널이 가득 찼어요'); else if (m.e === 'badcode') sys('옮기기 코드가 맞지 않거나 시간이 지났어요'); return;
+    case 'code': if (NET.codeCb) { NET.codeCb(m.code, m.until); NET.codeCb = null; } return;
+    case 'room': clearPeers(); for (const p of m.list) addPeer(p); return;
+    case 'enter': addPeer(m.p); return;
+    case 'leave': { const q = NET.peers.get(m.id); if (q) NET.peers.delete(m.id); return; }
+    case 'st': { const q = NET.peers.get(m.id); if (q) setTarget(q, m.s); return; }
+    case 'me': { const q = NET.peers.get(m.id); if (q) { Object.assign(q.me, m.me); q.pf = null; } return; }
+    case 'chat': {
+      if (m.id === NET.id) return; const q = NET.peers.get(m.id);
+      if (typeof chatLine === 'function') chatLine([[m.to === 'ch' ? '[채널] ' : '', '#c8c8d8'], [m.name + ': ', '#9fd8ff'], [m.text, '#ffffff']]);
+      if (q && q.pf) q.pf.bubble = { s: m.text, t: 4.5 }; return;
+    }
+  }
+}
+window.netConnect = connect;
+window.netCode = cb => { if (!NET.on) return false; NET.codeCb = cb; send({ t: 'code' }); return true; };          // 옮기기 코드 받기 (설정 창에서)
+window.netRedeem = code => { if (!NET.ws) return false; send({ t: 'redeem', code }); return true; };              // 옮기기 코드 넣기
+
+// ── 다른 사람 ──
+function clearPeers() { NET.peers.clear(); }
+function addPeer(p) { if (!p || p.id === NET.id) return; NET.peers.set(p.id, { id: p.id, me: { name: p.name, job: p.job, sex: p.sex, lv: p.lv, look: p.look || {} }, pf: null, tx: null, tz: 0, ty: 0, face: 1, walk: 0 }); const q = NET.peers.get(p.id); if (p.st) setTarget(q, p.st); }
+function setTarget(q, s) { if (!Array.isArray(s)) return; q.tx = +s[0] || 0; q.ty = +s[1] || 0; q.tz = +s[2] || 0; q.face = s[3] < 0 ? -1 : 1; q.walk = s[4] ? 1 : 0; q.air = s[5] ? 0 : 1; }
+function peerPf(q) {
+  if (q.pf) return q.pf; const me = q.me, look = me.look || {};
+  if (!JOBS[me.job]) return null;
+  const ch = { id: 'net_' + q.id, name: me.name, job: me.job, sex: me.sex === 'f' ? 'f' : 'm', lv: me.lv || 1, stat: { str: 1e5, agi: 1e5, int: 1e5, luk: 1e5 }, equip: Object.assign({}, look), items: Object.values(look).filter(v => typeof v === 'string') };
+  let p; try { p = makePlayer(me.job, ch); } catch (e) { return null; }
+  p.charName = me.name; p.team = 9; p.noAuraFx = true; p.net = true; p.onGround = true;
+  if (q.tx !== null) { p.x = q.tx; p.z = q.tz; p.y = q.ty; }
+  if (typeof czApplyLook === 'function') { try { czApplyLook(p, ch); } catch (e) {} }
+  return q.pf = p;
+}
+const NET_DRAW = [];
+if (window.EXTRA_LISTS) EXTRA_LISTS.push(NET_DRAW);
+function rebuildDraw() {
+  NET_DRAW.length = 0; if (!G.map || !NET.room) return;
+  for (const q of NET.peers.values()) { const f = peerPf(q); if (!f || q.tx === null) continue;
+    NET_DRAW.push({ z: sortZ(f), draw: () => { try { updatePose(f); drawFighter(f); drawNameTag(f); } catch (e) {} } }); }
+}
+// ── 걸음마다 : 내 자리 보내기 · 남 움직이기 ──
+function lookOf(ch) { const L = {}; for (const k in (ch.equip || {})) { const v = ch.equip[k]; if (typeof v === 'string' && v.length < 40) L[k] = v; } return L; }
+function meOf() { const ch = curChar(); if (!ch) return null; return { name: ch.name, job: ch.job, sex: ch.sex || 'm', lv: ch.lv || 1, look: lookOf(ch) }; }
+{ const ms0 = mapStep; mapStep = function (dt) {
+    const r = ms0(dt);
+    if (NET.on && G.map && G.player) {
+      const ch = curChar(), key = G.map.key + '|' + (ch && ch.id) + '|' + NET.ch;
+      if (NET.room !== key) { const me = meOf(); if (me) { NET.room = key; clearPeers(); send({ t: 'join', ch: NET.ch, map: G.map.key, me }); } }
+      NET.stT -= dt;
+      if (NET.stT <= 0) { NET.stT = 0.1; const p = G.player, s = [Math.round(p.x * 10) / 10, Math.round(p.y * 10) / 10, Math.round(p.z * 10) / 10, p.face < 0 ? -1 : 1, p.walking ? 1 : 0, p.onGround ? 1 : 0], k = s.join(',');
+        if (k !== NET.lastSt) { NET.lastSt = k; send({ t: 'st', s }); } }
+      const lerp = Math.min(1, dt * 12);
+      for (const q of NET.peers.values()) { const f = q.pf; if (!f || q.tx === null) continue;
+        const dx = q.tx - f.x, dz = q.tz - f.z; if (Math.abs(dx) > 30) { f.x = q.tx; f.z = q.tz; } else { f.x += dx * lerp; f.z += dz * lerp; }
+        f.y += (q.ty - f.y) * lerp; f.face = q.face; f.walking = !!q.walk || Math.abs(dx) > 0.15; f.onGround = !q.air; f.vx = dx; f.vy = 0;
+        if (f.bubble && (f.bubble.t -= dt) <= 0) f.bubble = null; }
+    } else if (NET.room && !G.map) NET.room = null;
+    rebuildDraw();
+    return r; }; window.mapStep = mapStep; }
+// ── 채팅 : 채널(맵) · 전체(채널 전체) 는 서버로도 ──
+{ const sc0 = sendChat; sendChat = function () {
+    const inp = document.getElementById('chatIn'), s = inp ? inp.value.trim().slice(0, 60) : '', mode = typeof CHAT !== 'undefined' ? CHAT.mode : '';
+    const r = sc0.apply(this, arguments);
+    if (NET.on && s && (mode === 'all' || mode === 'ch' || mode === 'channel' || !mode || (mode !== 'whisper' && mode !== 'party' && mode !== 'guild'))) send({ t: 'chat', text: s, to: mode === 'all' ? 'ch' : 'map' });
+    return r; }; window.sendChat = sendChat; }
+// 레벨 · 겉모습이 바뀌면 알림 (2초마다 확인)
+setInterval(() => { if (!NET.on || !NET.room) return; const me = meOf(); if (!me) return; const k = me.lv + '|' + JSON.stringify(me.look); if (k !== NET.meK) { if (NET.meK) send({ t: 'me', me: { lv: me.lv, look: me.look } }); NET.meK = k; } }, 2000);
+if (NET.url) setTimeout(connect, 300);
 }
 </script>
 <script>__ldDone()</script>
