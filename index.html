@@ -142,7 +142,7 @@ canvas{display:block;cursor:default}
   show();
 })();
 </script>
-<script>const BUILD = "10-06 16:29", TEST_BUILD = false, FRIEND_BUILD = true;</script>
+<script>const BUILD = "10-06 17:31", TEST_BUILD = false, FRIEND_BUILD = true;</script>
 <script>
 'use strict';
 // ════════════════════════════════════════════════════════════════
@@ -7971,13 +7971,15 @@ function bubbleFrame(cx, y0, w, h) {                       // 말풍선 (10-02) 
   ctx.save(); ctx.fillStyle = 'rgba(8,6,20,0.62)'; ctx.fill(); ctx.lineJoin = 'round'; ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.stroke(); ctx.restore();   /* 이름표와 같은 반투명 검은 바탕 + 옅은 테 (10-02) */
 }
 function wrapLines(s, maxW) { const out = []; let cur = ''; for (const chh of s) { const t = cur + chh; if (ctx.measureText(t).width > maxW && cur) { out.push(cur); cur = chh; } else cur = t; } if (cur) out.push(cur); return out; }
+function chatFs() { return SET.chatFs === 's' ? 13 : SET.chatFs === 'l' ? 17 : 15; }
 function drawChatLog() {
   const open = G.chatOpen, list = G.chat.slice(-8).filter(m => open || m.t < 14); if (!list.length) return;
-  ctx.save(); const x = 16, y0 = VH - (open ? 108 : 74); uiFont(700, 13); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  const fs = chatFs(), lh = fs + 7;                                                    // 10-06 : 채팅 글씨 크기 (설정 : 작게 13 · 보통 15 · 크게 17)
+  ctx.save(); const x = 16, y0 = VH - (open ? 108 : 74); uiFont(700, fs); ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
   const n = list.length;
-  for (let i = n - 1; i >= 0; i--) { const m = list[i]; const y = y0 - (n - 1 - i) * 20; ctx.globalAlpha = open ? 1 : clamp((14 - m.t) / 2.5, 0, 1);
+  for (let i = n - 1; i >= 0; i--) { const m = list[i]; const y = y0 - (n - 1 - i) * lh; ctx.globalAlpha = open ? 1 : clamp((14 - m.t) / 2.5, 0, 1);
     let w = 18; for (const [t] of m.parts) w += ctx.measureText(t).width;
-    ctx.fillStyle = 'rgba(8,6,20,0.55)'; roundRect(x, y - 10, w, 20, 6); ctx.fill();
+    ctx.fillStyle = 'rgba(8,6,20,0.55)'; roundRect(x, y - lh / 2, w, lh, 6); ctx.fill();
     let tx = x + 9; for (const [t, c] of m.parts) { ctx.fillStyle = c; ctx.fillText(t, tx, y + 1); tx += ctx.measureText(t).width; } }
   ctx.restore();
 }
@@ -15403,7 +15405,7 @@ function drawWorldArt() {
       if (sel) { ctx.fillStyle = c; ctx.fillRect(rx + 1, y + 8, 3, 24); }
       wmGem(rx + 18, y + 20, 5, c, sel ? 1 : .35); uiFont(sel ? 900 : 800, 15); ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillStyle = sel ? '#fff4d6' : '#cfc2a8'; ctx.fillText(nm, rx + 34, y + 21);
       G.hudBtns.push({ x: rx, y, w: rw, h: 40, fn }); y += 48; }   // 사냥 · 마을 화면에서는 G.hudBtns 로 눌림
-    uiFont(700, 11); ctx.fillStyle = 'rgba(220,210,190,0.7)'; ctx.textAlign = 'left'; ctx.fillText('N : 닫기', rx + 4, y + 12); ctx.fillText('마우스를 올리면 설명', rx + 4, y + 30);
+    uiFont(700, 11); ctx.fillStyle = 'rgba(220,210,190,0.7)'; ctx.textAlign = 'left'; if (window.hudMob && hudMob()) { ctx.fillText('× : 닫기 · 작게 : 둘레 지도', rx + 4, y + 12); ctx.fillText('눌러 보면 설명', rx + 4, y + 30); } else { ctx.fillText('N : 닫기', rx + 4, y + 12); ctx.fillText('마우스를 올리면 설명', rx + 4, y + 30); }
   }
   ctx.restore();
 }
@@ -16967,9 +16969,9 @@ function screenHead(title, sub, gold, icon) {
   if (icon) drawIcon(icon, 58, 40, 13, '#ffd27a');
   duskHead(title, icon ? 84 : 40, 40, { size: 30, align: 'left' });
   if (sub && sub.length <= 16) { ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; dispFont(30, 'Gasoek One'); const tw = ctx.measureText(title).width; uiFont(700, 13); ctx.fillStyle = 'rgba(255,226,180,0.8)'; ctx.fillText(sub, (icon ? 84 : 40) + tw + 20, 44); }   // 긴 설명 글은 안 씀 (H 도움말)
-  if (gold !== undefined && gold !== null) { goldText(VW - 40, 40, gold, 22);
+  if (gold !== undefined && gold !== null) { const xo = window.closeXOff ? closeXOff() : 0; goldText(VW - 40 - xo, 40, gold, 22);   // 10-06 : 오른쪽 끝 X 닫기 자리만큼 왼쪽
     const ch = typeof curChar === 'function' ? curChar() : null;                         // 10-05 : 상점 · 창 어디서든 골드 왼쪽에 ◆ 차원 포인트
-    if (ch && typeof dimPtMini === 'function') { uiFont(900, 22); const gw = ctx.measureText(Number(gold).toLocaleString()).width; dimPtMini(ch, VW - 40 - gw - 52, 40, 19); } }
+    if (ch && typeof dimPtMini === 'function') { uiFont(900, 22); const gw = ctx.measureText(Number(gold).toLocaleString()).width; dimPtMini(ch, VW - 40 - xo - gw - 52, 40, 19); } }
   ctx.restore();
 }
 // 인물 발밑 무대 빛
@@ -19759,7 +19761,7 @@ function drawWarp() {
 function drawSettings() {
   const dusk = !(G.map && G.player);
   if (dusk) { duskBg(0.25); duskHead('설정', VW / 2, 56, { size: 38 }); } else { menuBg(0.6); screenHead('설정', '', null, 'gear'); }
-  const x = VW / 2 - 260, w = 520; let y = 88; if (dusk) lacquerCard(x, y, w, 438, null, false, false); else panelBox(x, y, w, 438);   // 10-05 : «성능 표시» 줄 더함   // 10-04 : «무기 붙이기 시험» 칸 뺌
+  const x = VW / 2 - 260, w = 520; let y = 88; if (dusk) lacquerCard(x, y, w, 492, null, false, false); else panelBox(x, y, w, 492);   // 10-05 : «성능 표시» 줄 더함   // 10-04 : «무기 붙이기 시험» 칸 뺌
   const row = (nm, val, fn, yy) => { if (dusk) inkText(nm, x + 34, yy + 26, 20, '#fff2d6', { align: 'left' }); else label(nm, x + 30, yy + 30, { w: 700, s: 17, col: '#fff' });
     if (dusk) plaqueBtn(x + w - 176, yy + 4, 140, 42, val, fn, { size: 18 }); else btn(x + w - 170, yy + 6, 140, 38, val, fn, { size: 15 }); };
   const vrow = (nm, pct, fn, yy) => {                                                // 10-04 : − 값 + (0 = 끔)
@@ -19775,9 +19777,10 @@ function drawSettings() {
   { const g0 = SET.gfx === 'vlo' ? 'vlo' : gfxLow() ? 'lo' : 'hi';   // 10-06 : 높음 → 보통 (빠름) → 가볍게 (화면 70%)
     row('화질', g0 === 'vlo' ? '가볍게 (70%)' : g0 === 'lo' ? '보통 (빠름)' : '높음', () => { SET.gfx = g0 === 'hi' ? 'lo' : g0 === 'lo' ? 'vlo' : 'hi'; saveNow(); fit(); }, y + 240); }
   row('성능 표시', SET.perf ? '켬' : '끔', () => { SET.perf = !SET.perf; saveNow(); }, y + 294);
+  row('채팅 글씨', SET.chatFs === 's' ? '작게' : SET.chatFs === 'l' ? '크게' : '보통', () => { SET.chatFs = SET.chatFs === 's' ? 'm' : SET.chatFs === 'l' ? 's' : 'l'; saveNow(); }, y + 348);   // 10-06 주인님 : 채팅 글씨 크기
   const P = dusk ? plaqueBtn : btn, big = dusk ? 17 : 15;
-  if (M.confirmReset) { P(x + 30, y + 362, 220, 44, '정말 모두 지우기', () => { STORE.accountWipe(); location.reload(); }, dusk ? { red: true, size: big } : { col: '#ff5a5a', size: big }); P(x + 270, y + 362, 220, 44, '취소', () => { M.confirmReset = false; }, { size: big }); }
-  else P(x + 30, y + 362, 460, 44, '저장 데이터 초기화', () => { M.confirmReset = true; }, dusk ? { red: true, size: big } : { col: '#ff5a5a', size: big });
+  if (M.confirmReset) { P(x + 30, y + 416, 220, 44, '정말 모두 지우기', () => { STORE.accountWipe(); location.reload(); }, dusk ? { red: true, size: big } : { col: '#ff5a5a', size: big }); P(x + 270, y + 416, 220, 44, '취소', () => { M.confirmReset = false; }, { size: big }); }
+  else P(x + 30, y + 416, 460, 44, '저장 데이터 초기화', () => { M.confirmReset = true; }, dusk ? { red: true, size: big } : { col: '#ff5a5a', size: big });
   if (dusk) plaqueBtn(VW / 2 - 117, VH - 100, 234, 54, '뒤로', () => { M.confirmReset = false; G.state = M.back || 'title'; }, { size: 21, dim: true });
   else btn(VW / 2 - 110, VH - 100, 220, 46, '뒤로', () => { M.confirmReset = false; G.state = M.back || 'title'; }, { icon: 'back', col: '#c8c8d8' });
   label(buildTag(), VW - 16, VH - 12, { align: 'right', s: 11, col: 'rgba(200,200,216,0.35)' });
@@ -21600,6 +21603,8 @@ window.CZ_LIMITED = CZ_LIMITED; window.LTD_SELL = LTD_SELL; window.ltdState = lt
 Object.assign(CZ_PRICE_ITEM, { czb_m_hanbok: 150000, czb_m_sweat: 200000, czb_m_overall: 100000, czb_m_polo: 250000, czb_m_linen: 300000, czb_m_jersey: 300000, czb_m_wind: 500000, czb_m_tech: 2000000,
   czb_track: 2000000, czb_suit: 1000000, cze_xgold: 2000000, cze_xsilver: 1000000, czf_ninja: 150000, czf_round: 300000, czf_black: 100000, czl_red: 200000, czc_swordhat: 1000000, czc_denimcap: 500000 });
 Object.assign(CZ_PRICE_ITEM, { czb_ftrack: 2000000, czb_f_crop: 300000, czb_f_puff: 100000, czb_f_hood: 300000, czb_f_pinafore: 50000, czb_f_leather: 200000 });   // 10-06 주인님 여자옷 값
+for (const g of ITEMS) if (g.cat === 'czg' && !CZ_LIMITED[g.id]) CZ_PRICE_ITEM[g.id] = Math.round((CZ_PRICE_ITEM[g.id] !== undefined ? CZ_PRICE_ITEM[g.id] : CZ_PRICE.czg) / 2);   // 10-06 주인님 : 날개 값 전부 반값
+Object.assign(CZ_PRICE_ITEM, { czg_devil: 1000000, czg_fairy: 500000 });   // 10-06 주인님 : 악마 날개 100만 · 나비 요정 날개 50만
 const czPrice = g => !g ? 0 : CZ_LIMITED[g.id] ? LTD_PRICE : CZ_PRICE_ITEM[g.id] !== undefined ? CZ_PRICE_ITEM[g.id] : (CZ_PRICE[g.cat] || 0);
 MENU_STATES.add('czshop');
 function czWorn(ch) { const o = {}; for (const c of CZ_SHOPO) { const g = czItemOf(ch, c); if (g && (ch.items || []).includes(g.id) && czHas(g, ch.job, ch.sex)) o[c] = g.id; } if (o.czs) czExclusive(o, 'czs'); if (o.czh) delete o.czc; return o; }
@@ -21672,7 +21677,7 @@ function drawCzShop() {
   btn(px + pw - 72, py + 12, 54, 30, '여', () => setSx('f'), { sel: SX === 'f', size: 15 });
   const eq = mine ? Object.assign({}, ch.equip) : { wpn2: baseWpnId(ch.job), suit2: baseSuitId(ch.job) };   // 다른 성별 = 같은 직업 기본 캐릭터
   for (const c of CZ_SHOPO) { if (M.czTry[c]) eq[c] = M.czTry[c]; else delete eq[c]; }
-  const tmp = { job: ch.job, sex: SX, equip: eq, items: ITEMS.filter(g => g.cz).map(g => g.id), dye: Object.assign({}, mine ? ch.dye : null) };
+  const tmp = { job: ch.job, sex: SX, equip: eq, items: ITEMS.filter(g => g.cz).map(g => g.id), dye: {} };   // 10-06 주인님 : 가게에서는 내가 한 염색 말고 원래 색 (염색 탭에서 고른 색만 입어 봄)
   if (M.czTry.czh && M.czDyeTry) { if (M.czDyeTry === 'none') delete tmp.dye[M.czTry.czh]; else tmp.dye[M.czTry.czh] = M.czDyeTry; }   // 염색 입어 보기 (10-06)
   const pf = previewOf(ch.job, tmp, 'czshop:' + ch.job + tmp.sex + JSON.stringify(eq) + JSON.stringify(tmp.dye)); M.czPf = pf;
   const fx = px + pw / 2, fy = py + 300; pedestal(fx, fy, 96, JOBS[ch.job].col.accent); if (M.czTry.cza && window.trailPreview) trailPreview(pf, fx, fy, 1.75, M.czTry.cza); drawPreview(pf, fx, fy, 1.75); drawTrailAt(pf, fx, fy, 1.75);   // 잔상 입어 보기 (10-04)
@@ -27696,30 +27701,27 @@ function hudMobBtn(x, y, w, h, text, col, fs, bd, bcol) {              // 큰 �
   ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; dispFont(fs); ctx.fillStyle = '#1a0c04'; ctx.fillText(text, x + w / 2 + 2, y + h / 2 + 3); ctx.fillStyle = '#fff2d6'; ctx.fillText(text, x + w / 2, y + h / 2 + 1);
   if (bd > 0) { const r = Math.max(10, h * 0.2); ctx.fillStyle = bcol || '#ff4a5a'; ctx.beginPath(); ctx.arc(x + w - r * 0.6, y + r * 0.6, r, 0, Math.PI * 2); ctx.fill(); uiFont(900, Math.round(r * 1.2)); ctx.fillStyle = '#fff'; ctx.fillText(String(bd), x + w - r * 0.6, y + r * 0.6 + 1); }
   ctx.restore(); }
-function hudMobMenu() {
-  const all = HUD_ROW1.concat(HUD_ROW2, window.MOB_EXTRA || []), bsum = all.reduce((a, m) => a + (m.badge ? (m.badge() || 0) : 0), 0);
+function hudMobMenu() {                                                    // 10-06 주인님 : «메뉴» 를 누르면 컴퓨터처럼 두 줄 단추가 왼쪽으로 펼쳐짐 (화면을 다 가리지 않게)
+  const extra = window.MOB_EXTRA || [], rows = [HUD_ROW1, HUD_ROW2.concat(extra)], all = rows[0].concat(rows[1]), bsum = all.reduce((a, m) => a + (m.badge ? (m.badge() || 0) : 0), 0);
   const mw = 168, mh = 64, mx = VW - 18 - mw, my = 8;
   hudMobBtn(mx, my, mw, mh, MOBM.open ? '닫기' : '메뉴', '#ffd27a', 26, MOBM.open ? 0 : bsum);
   MOBM.btns.length = 0;
-  if (MOBM.open) {                                                          // 큰 단추 14개 (4칸씩) — 그리기는 맨 위 (drawTouchUI 뒤)
-    const cols = 4, bw = 250, bh = 92, gp = 16, W = cols * bw + (cols - 1) * gp, x0 = (VW - W) / 2, y0 = 150;
-    all.forEach((m, i) => { const c = i % cols, r = Math.floor(i / cols); MOBM.btns.push({ m, x: x0 + c * (bw + gp), y: y0 + r * (bh + gp), w: bw, h: bh }); });
-    for (const b of MOBM.btns) G.hudBtns.push({ x: b.x, y: b.y, w: b.w, h: b.h, fn: () => { MOBM.open = false; b.m.fn(); } });
-  }
+  if (MOBM.open) { const n = Math.max(rows[0].length, rows[1].length), gp = 8, bw = Math.min(96, Math.floor((mx - 12 - 356 - (n - 1) * gp) / n)), bh = 52, x1 = mx - 12;
+    rows.forEach((row, r) => { let x = x1 - (row.length * bw + (row.length - 1) * gp); const y = 8 + r * (bh + gp);       // 오른쪽 맞춤 (메뉴 단추 바로 왼쪽부터)
+      for (const m of row) { MOBM.btns.push({ m, x, y, w: bw, h: bh }); x += bw + gp; } });
+    for (const b of MOBM.btns) G.hudBtns.push({ x: b.x, y: b.y, w: b.w, h: b.h, fn: () => { MOBM.open = false; b.m.fn(); } }); }
   G.hudBtns.push({ x: mx, y: my, w: mw, h: mh, fn: () => { MOBM.open = !MOBM.open; } });
-  if (MOBM.open) G.hudBtns.push({ x: 0, y: 0, w: VW, h: VH, fn: () => { MOBM.open = false; } });   // 밖을 누르면 닫힘
+  if (MOBM.open) G.hudBtns.push({ x: 0, y: 0, w: VW, h: VH, fn: () => { MOBM.open = false; } });   // 밖을 누르면 접힘
 }
 function drawMobMenu() {
   if (!MOBM.open || !hudMob() || G.state !== 'play' || !G.map) { if (G.state !== 'play' || !G.map) MOBM.open = false; return; }
-  ctx.save(); ctx.fillStyle = 'rgba(6,4,12,0.62)'; ctx.fillRect(0, 0, VW, VH);
-  const b0 = MOBM.btns[0], bl = MOBM.btns[MOBM.btns.length - 1]; if (b0) { glass(b0.x - 26, b0.y - 66, (MOBM.btns[3] ? MOBM.btns[3].x + MOBM.btns[3].w : b0.x + b0.w) - b0.x + 52, bl.y + bl.h - b0.y + 92, { r: 18, bg: 'rgba(22,13,8,0.92)' });
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; dispFont(28); ctx.fillStyle = '#ffd27a'; ctx.fillText('메뉴', VW / 2, b0.y - 34); }
-  for (const b of MOBM.btns) hudMobBtn(b.x, b.y, b.w, b.h, b.m.k, b.m.col, 30, b.m.badge ? b.m.badge() : 0, b.m.bcol);
+  ctx.save();
+  for (const b of MOBM.btns) hudMobBtn(b.x, b.y, b.w, b.h, b.m.k, b.m.col, 19, b.m.badge ? b.m.badge() : 0, b.m.bcol);
   const mw = 168, mh = 64; hudMobBtn(VW - 18 - mw, 8, mw, mh, '닫기', '#ffd27a', 26, 0);
   ctx.restore(); }
 { const dt0 = drawTouchUI; drawTouchUI = function () { dt0(); drawMobMenu(); }; window.drawTouchUI = drawTouchUI; }
 { const tm0 = touchModal; touchModal = function () { return !!(MOBM.open && hudMob()) || tm0(); }; window.touchModal = touchModal; }
-Object.assign(window, { qwList, qwReadyN, QW, MOBM });
+Object.assign(window, { qwList, qwReadyN, QW, MOBM, HUD_ROW1, HUD_ROW2 });
 }
 </script>
 <script>
@@ -27961,7 +27963,7 @@ function drawDyeTab(ch, gx, gy, SX, mine) {
   hairs.slice(0, 15).forEach((g, i) => {
     const x = PX + 18 + (i % 3) * (rw + 10), y = PY + 48 + Math.floor(i / 3) * (rh + 8), cur = dyeOf(ch, g.id), hov = inRect(x, y, rw, rh), worn = ch.equip && ch.equip.czh === g.id;
     ctx.fillStyle = hov ? 'rgba(52,34,52,0.96)' : 'rgba(24,18,34,0.92)'; roundRect(x, y, rw, rh, 10); ctx.fill(); ctx.strokeStyle = hov ? '#fff' : 'rgba(255,176,224,0.35)'; ctx.lineWidth = hov ? 2 : 1.2; ctx.stroke();
-    czIcon(g, x + 32, y + rh / 2, 50); dyeDrop(g, x + 32, y + rh / 2, 50);
+    czIcon(g, x + 32, y + rh / 2, 50);
     ctx.font = `800 14px ${UIF}`; label(labFit(g.name, rw - 74), x + 64, y + 27, { w: 800, s: 14, col: '#fff' });
     label((cur ? DYE_BY[cur].name.replace(' 염색약', '') : '원래 색') + (worn ? ' · 쓰는 중' : ''), x + 64, y + 48, { w: 700, s: 12, col: cur ? DYE_BY[cur].col : '#8a8a96' });
     UI.btns.push({ x, y, w: rw, h: rh, fn: () => {
@@ -27977,8 +27979,7 @@ window.drawDyeTab = drawDyeTab;
 function dyeDrop(g, cx, cy, s) { try { const ch = typeof curChar === 'function' && curChar(), dy = g && g.cat === 'czh' && dyeOf(ch, g.id); if (!dy) return; const D = DYE_BY[dy], x = cx + s * 0.32, y = cy + s * 0.28, rr = Math.max(4, s * 0.11);
   ctx.save(); ctx.fillStyle = D.col; ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = Math.max(1, s * 0.025); ctx.beginPath(); ctx.moveTo(x, y - rr * 1.7);
   ctx.quadraticCurveTo(x + rr * 1.05, y - rr * 0.3, x + rr, y + rr * 0.2); ctx.arc(x, y + rr * 0.2, rr, 0, Math.PI); ctx.quadraticCurveTo(x - rr * 1.05, y - rr * 0.3, x, y - rr * 1.7); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); } catch (e) { } }
-{ const bi0 = bagIcon; bagIcon = function (e, cx, cy, s, ch) { const r = bi0.apply(this, arguments); if (e && e.t === 'look' && e.g && e.g.cat === 'czh') dyeDrop(e.g, cx, cy, s); return r; }; window.bagIcon = bagIcon; }
-{ const ci0 = window.czIcon; if (ci0) { const ci = function (g, cx, cy, s) { const r = ci0.apply(this, arguments); dyeDrop(g, cx, cy, s); return r; }; window.czIcon = ci; try { czIcon = ci; } catch (e) { } } }   // 장비 창 (Y)
+// 10-06 주인님 : 머리 그림 위 염색 방울 표시는 뺌 (가방 설명 줄에 «염색 : …» 만)
 }
 </script>
 <script>
@@ -28533,6 +28534,41 @@ timeIt('drawTownWorld', 'bg'); timeIt('drawFieldWorld', 'bg'); timeIt('drawTownN
 </script>
 <script>
 // ════════════════════════════════════════════════════════════════
+//  휴대폰 렉 (10-06 · 주인님 폰 «성능 표시» : 처음 마을 1.3ms → 사냥터를 다녀오면 마을 광장 66~74ms · 사냥터 화면 UI 108ms)
+//   원인 : 그림을 많이 쓰고 나면 폰이 그래픽 메모리가 모자라 «그림(webp) 풀기» 를 틀마다 다시 함 (큰 하늘 그림 · 단추 그림 등)
+//   ② 맵을 옮기면 다른 사냥터 · 마을이 쥐고 있던 큰 배경 판을 놓아 줌 (다시 가면 그때 새로 만듦 · 중앙 마을은 늘 둠)
+// ════════════════════════════════════════════════════════════════
+{
+// ② 맵을 옮기면 다른 맵의 큰 배경 판을 놓아 줌
+const KEEP = new Set(['town_main']);
+function tidy(cur) {
+  const drop = (O, skip) => { if (!O || typeof O !== 'object') return; for (const k of Object.keys(O)) if (k !== cur && !KEEP.has(k) && !(skip && skip.includes(k))) delete O[k]; };
+  try { if (typeof FIELD_CACHE !== 'undefined') drop(FIELD_CACHE, ['__ai']); } catch (e) {}
+  for (const nm of ['VIL_BG', 'HX_BACK', 'HX_CEIL', 'HXV_BACK', 'HV_BACK']) { try { const O = eval('typeof ' + nm + " !== 'undefined' ? " + nm + ' : null'); drop(O); } catch (e) {} }
+}
+let lastKey = null;
+{ const ms0 = mapStep; mapStep = function (dt) { const k = G.map && G.map.key; if (k && k !== lastKey) { lastKey = k; tidy(k); } return ms0.apply(this, arguments); }; window.mapStep = mapStep; }
+{ const ss0 = stageStep; stageStep = function (dt) { if (lastKey !== '__stage') { lastKey = '__stage'; tidy('__stage'); } return ss0.apply(this, arguments); }; window.stageStep = stageStep; }
+// ③ 아주 넓은 판(마을 바닥 · 뒷벽 5000px 등)은 2048px 조각으로 나눠 그리는데 원본도 그대로 남아 메모리를 두 배로 씀 → 조각을 만든 뒤 원본 화소는 놓아 줌 (크기 값은 그대로)
+{ const wt0 = wideTiles; wideTiles = function (img) { const had = !!img._wt, t = wt0(img);
+    if (!had && t && t.length && img instanceof HTMLCanvasElement && !img._freed) { const W = img.width, H = img.height; img._freed = true;
+      try { img.width = 1; img.height = 1; Object.defineProperty(img, 'width', { get: () => W, set: () => {}, configurable: true }); Object.defineProperty(img, 'height', { get: () => H, set: () => {}, configurable: true }); } catch (e) {} }
+    return t; }; window.wideTiles = wideTiles; }
+}
+// ④ 하늘 그림 (큰 webp) 을 틀마다 줄여 그리던 것 → 그릴 크기로 한 번 줄여 둔 판을 찍음 (모양 그대로)
+{ const SKYC = new Map();
+  drawFieldSkyArt = function (b) {
+    const w = VW + 110, h = w * b.h / b.w, dx = -55 - ((G.cam.x * S * 0.02) % 55), dy = FLOOR_TOP - h + 70 + (b.oy || 0) + (G.camZ || 0) * 0.6;
+    ctx.fillStyle = b.top; ctx.fillRect(-20, dy - 1200, VW + 40, 1202);
+    const R = DPR, key = b.img.src.length + '|' + Math.round(w * R) + 'x' + Math.round(h * R); let c = SKYC.get(b);
+    if (!c || c._k !== key) { c = document.createElement('canvas'); c.width = Math.round(w * R); c.height = Math.round(h * R); const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(b.img, 0, 0, c.width, c.height); c._k = key; SKYC.set(b, c); if (SKYC.size > 3) SKYC.delete(SKYC.keys().next().value); }
+    ctx.drawImage(c, dx, dy, w, h);
+    const fg = ctx.createLinearGradient(0, dy, 0, dy + 46); fg.addColorStop(0, b.top); fg.addColorStop(1, b.top + '00');   /* 그림 윗가장자리 이음새 숨김 */
+    ctx.fillStyle = fg; ctx.fillRect(-20, dy - 1, VW + 40, 47); };
+  window.drawFieldSkyArt = drawFieldSkyArt; }
+</script>
+<script>
+// ════════════════════════════════════════════════════════════════
 //  서버 연결 1단계 (2026-10-06) : 게스트 계정 · 옮기기 코드 · 서버 저장 · 같은 채널 · 같은 맵 사람 보이기 · 채팅
 //   서버 주소가 없으면 예전처럼 이 기기만 (오프라인) — 주소 : NET_URL 상수 · 시험할 때는 주소 뒤 ?server=ws://…
 //   개인정보 · 비밀번호는 받지 않음 · 이 기기에는 계정 번호와 열쇠만 (sdj_acc)
@@ -28589,7 +28625,7 @@ function onMsg(m) {
     case 'enter': addPeer(m.p); return;
     case 'leave': { const q = NET.peers.get(m.id); if (q) NET.peers.delete(m.id); return; }
     case 'st': { const q = NET.peers.get(m.id); if (q) setTarget(q, m.s); return; }
-    case 'me': { const q = NET.peers.get(m.id); if (q) { Object.assign(q.me, m.me); q.pf = null; } return; }
+    case 'me': { const q = NET.peers.get(m.id); if (q) { const up = m.me && +m.me.lv > (+q.me.lv || 0); Object.assign(q.me, m.me); q.pf = null; if (up) q.lvUpT = G.real; } return; }   // 레벨이 오르면 머리 위 LEVEL UP
     case 'chat': {
       if (m.id === NET.id) return; const q = NET.peers.get(m.id);
       if (typeof chatLine === 'function') chatLine([[m.to === 'ch' ? '[채널] ' : '', '#c8c8d8'], [m.name + ': ', '#9fd8ff'], [m.text, '#ffffff']]);
@@ -28620,7 +28656,7 @@ if (window.EXTRA_LISTS) EXTRA_LISTS.push(NET_DRAW);
 function rebuildDraw() {
   NET_DRAW.length = 0; if (!G.map || !NET.room) return;
   for (const q of NET.peers.values()) { const f = peerPf(q); if (!f || q.tx === null) continue;
-    NET_DRAW.push({ z: sortZ(f), draw: () => { try { updatePose(f); drawFighter(f); drawNameTag(f); } catch (e) {} } }); }
+    f.lvUpT = q.lvUpT || 0; NET_DRAW.push({ z: sortZ(f), draw: () => { try { updatePose(f); drawFighter(f); drawNameTag(f); } catch (e) {} } }); }
 }
 // ── 걸음마다 : 내 자리 보내기 · 남 움직이기 ──
 function lookOf(ch) { const L = {}; for (const k in (ch.equip || {})) { const v = ch.equip[k]; if (typeof v === 'string' && v.length < 40) L[k] = v; } return L; }
@@ -28648,8 +28684,260 @@ function meOf() { const ch = curChar(); if (!ch) return null; return { name: ch.
     if (NET.on && s && (mode === 'all' || mode === 'ch' || mode === 'channel' || !mode || (mode !== 'whisper' && mode !== 'party' && mode !== 'guild'))) send({ t: 'chat', text: s, to: mode === 'all' ? 'ch' : 'map' });
     return r; }; window.sendChat = sendChat; }
 // 레벨 · 겉모습이 바뀌면 알림 (2초마다 확인)
-setInterval(() => { if (!NET.on || !NET.room) return; const me = meOf(); if (!me) return; const k = me.lv + '|' + JSON.stringify(me.look); if (k !== NET.meK) { if (NET.meK) send({ t: 'me', me: { lv: me.lv, look: me.look } }); NET.meK = k; } }, 2000);
+const meCheck = () => { if (!NET.on || !NET.room) return; const me = meOf(); if (!me) return; const k = me.lv + '|' + JSON.stringify(me.look); if (k !== NET.meK) { if (NET.meK) send({ t: 'me', me: { lv: me.lv, look: me.look } }); NET.meK = k; } };
+setInterval(meCheck, 2000); window.netMeNow = meCheck;   // 레벨업 때는 바로
 if (NET.url) setTimeout(connect, 300);
+}
+</script>
+<script>
+// ════════════════════════════════════════════════════════════════
+//  창 닫기 X · 지도 닫기 · 머리 위 레벨업 (10-06 주인님)
+//   · «아이템창이나 UI 오른쪽 끝 위에 X 표시» → 창 화면마다 오른쪽 위 X (누르면 Esc 와 똑같이 닫힘)
+//   · «지도 들어와서 끌 방법이 없어» → 전체 지도 : X 닫기 · 작게 / 작은 지도 칸을 누르면 한 단계 크게
+//   · «내 캐릭터 위에 작게 LEVEL UP 이 2초 반짝 · 다른 사람도 알게» → 머리 위 LEVEL UP + 몸 둘레 빛 (레벨 숫자는 안 보임)
+// ════════════════════════════════════════════════════════════════
+{
+const touchy = () => !!(window.hudMob && hudMob());
+function drawCloseX(x, y, s, hov) {
+  const r = s / 2, cx = x + r, cy = y + r, k = r * 0.36;
+  ctx.save();
+  const g = ctx.createLinearGradient(0, y, 0, y + s); g.addColorStop(0, hov ? '#5a2c1a' : '#3a2416'); g.addColorStop(1, '#1e1209');
+  ctx.shadowColor = 'rgba(0,0,0,0.6)'; ctx.shadowBlur = 8; ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.fill(); ctx.shadowBlur = 0;
+  ctx.strokeStyle = hov ? '#ffe2a0' : '#d8a850'; ctx.lineWidth = 2; ctx.stroke();
+  ctx.strokeStyle = 'rgba(255,214,140,0.18)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, r - 4, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineCap = 'round';
+  const X = (col, lw, o) => { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(cx - k + o, cy - k + o); ctx.lineTo(cx + k + o, cy + k + o); ctx.moveTo(cx + k + o, cy - k + o); ctx.lineTo(cx - k + o, cy + k + o); ctx.stroke(); };
+  X('#1a0c04', r * 0.24, 1.5); X('#fff2d6', r * 0.17, 0);
+  ctx.restore(); }
+const xSize = () => touchy() ? 54 : 40;
+window.drawCloseX = drawCloseX;
+
+// ① 창 화면 (가방 · 장비 · 스킬 · 도감 · 상점 · 길드 …) : 오른쪽 위 X = Esc
+//    큰 창(나무 테두리)만 있는 화면은 그 창 오른쪽 위 모서리에 · 머리띠(제목 · 골드) 화면은 머리띠 오른쪽 끝에 (골드는 X 만큼 왼쪽으로)
+const NO_X = new Set(['title', 'charsel', 'charnew', 'lobby']);
+const XP = { pend: false, win: null, head: false };
+const xOn = () => !NO_X.has(G.state) && G.state !== 'play' && G.state !== 'pause';
+window.closeXOff = () => (xOn() ? xSize() + 10 : 0);
+{ const wc0 = winCorners; winCorners = function (x, y, w, h) { if (w >= 300 && h >= 160 && (!XP.win || w * h > XP.win.w * XP.win.h)) XP.win = { x, y, w, h }; return wc0.apply(this, arguments); }; window.winCorners = winCorners; }
+{ const sh0 = screenHead; screenHead = function () { XP.head = true; return sh0.apply(this, arguments); }; window.screenHead = screenHead; }
+{ const mt0 = metaTick; metaTick = function (dt) {
+    if (!XP.pend) return mt0.apply(this, arguments);
+    XP.pend = false; const st = G.state; IN.press.esc = true; const r = mt0.apply(this, arguments);
+    if (IN.press.esc) { IN.press.esc = false; if (G.state === st && typeof menuBack === 'function') menuBack(); }   // Esc 를 받는 곳이 없던 화면 : 그냥 돌아가기
+    return r; }; window.metaTick = metaTick; }
+{ const dm0 = drawMeta; drawMeta = function () {
+    XP.win = null; XP.head = false;
+    const r = dm0.apply(this, arguments);
+    if (!xOn() || !UI.btns.length) return r;
+    if ((typeof partyBoxOpen === 'function' && partyBoxOpen()) || (typeof bdBoxOpen === 'function' && bdBoxOpen())) return r;
+    const s = xSize(); let x = VW - s - 12, y = 40 - s / 2;
+    if (!XP.head && XP.win) { const W = XP.win; x = Math.min(VW - s - 4, W.x + W.w - s * 0.62); y = Math.max(4, W.y - s * 0.38); }
+    const hov = UI.mx >= x && UI.mx <= x + s && UI.my >= y && UI.my <= y + s;
+    drawCloseX(x, y, s, hov);
+    UI.btns.unshift({ x: x - 4, y: y - 4, w: s + 8, h: s + 8, label: '닫기', fn: () => { XP.pend = true; } });
+    return r; }; window.drawMeta = drawMeta; }
+
+// ② 지도 : 작은 칸을 누르면 한 단계 크게 · 전체 지도는 X 닫기 / 작게
+{ const wp0 = drawWorldPanel; drawWorldPanel = function () {
+    const r = wp0.apply(this, arguments); const m = G.map;
+    if (!m || !WORLD_POS[m.key] || G.state !== 'play') return r;
+    const mode = M.mapMode || 0; G.hudBtns = G.hudBtns || [];
+    if (mode === 2) {
+      const s = xSize(), x = VW - s - 14, y = 10, hov = UI.mx >= x && UI.mx <= x + s && UI.my >= y && UI.my <= y + s;
+      drawCloseX(x, y, s, hov); G.hudBtns.unshift({ x: x - 4, y: y - 4, w: s + 8, h: s + 8, fn: () => { M.mapMode = 0; } });
+      const bw = touchy() ? 92 : 74, bh = s - 8, bx = x - bw - 12, by = y + 4;               // «작게» : 둘레 지도로
+      ctx.save(); const g = ctx.createLinearGradient(0, by, 0, by + bh); g.addColorStop(0, '#3a2416'); g.addColorStop(1, '#1e1209'); ctx.fillStyle = g; roundRect(bx, by, bw, bh, 10); ctx.fill();
+      ctx.strokeStyle = '#d8a850'; ctx.lineWidth = 1.6; ctx.stroke(); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; uiFont(900, touchy() ? 17 : 14); ctx.fillStyle = '#fff2d6'; ctx.fillText('작게', bx + bw / 2, by + bh / 2 + 1); ctx.restore();
+      G.hudBtns.unshift({ x: bx, y: by, w: bw, h: bh, fn: () => { M.mapMode = 1; } });
+      return r; }
+    const x = 14, w = 330, y = m.peace ? 96 : 132 + hudCardExtra(), h = mode === 0 ? 42 : 210;
+    G.hudBtns.push({ x, y, w, h, fn: () => { M.mapMode = mode + 1; } });                     // 지도 칸 누르기 : 작게 → 둘레 → 전체
+    if (mode === 1 && touchy()) { const s = 34, bx = x + w - s - 6, by = y + 6; drawCloseX(bx, by, s, false); G.hudBtns.unshift({ x: bx - 6, y: by - 6, w: s + 12, h: s + 12, fn: () => { M.mapMode = 0; } }); }
+    return r; }; window.drawWorldPanel = drawWorldPanel; }
+
+// ③ 머리 위 LEVEL UP (2.2초 반짝) + 몸 둘레 빛 — 나도 · 남도 (서버 : 레벨이 오르면 바로 알림)
+const LVT = 2.2;
+function lvUpOver(f) {
+  const t0 = f.lvUpT; if (!t0 || f.dead) return; const age = G.real - t0; if (age < 0 || age > LVT) { if (age > LVT) f.lvUpT = 0; return; }
+  const p = scr(f.x, f.y, f.z), sc = f.scale || 1, top = p.y - 9.2 * S * sc, bodyH = 8.2 * S * sc;
+  const fin = clamp(age / 0.25, 0, 1), fout = clamp((LVT - age) / 0.45, 0, 1), a = Math.min(fin, fout);
+  ctx.save();
+  // 몸 둘레 : 발밑 빛 고리 두 겹 + 몸을 감고 도는 빛 알갱이 + 위로 오르는 빛 기둥
+  ctx.globalCompositeOperation = 'lighter';
+  for (let i = 0; i < 2; i++) { const q = ((age * 1.1 + i * 0.5) % 1), rr = (1.6 + q * 3.2) * S * sc; ctx.globalAlpha = a * (1 - q) * 0.9; ctx.strokeStyle = i ? '#ffe9a0' : '#ffc040'; ctx.lineWidth = 3 * (1 - q) + 1;
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, rr, rr * 0.32, 0, 0, Math.PI * 2); ctx.stroke(); }
+  { const cg = ctx.createLinearGradient(0, p.y, 0, p.y - bodyH * 1.15); cg.addColorStop(0, 'rgba(255,214,110,0.42)'); cg.addColorStop(1, 'rgba(255,214,110,0)'); ctx.globalAlpha = a * (0.55 + 0.25 * Math.sin(age * 14)); ctx.fillStyle = cg;
+    const cw = 2.3 * S * sc; ctx.beginPath(); ctx.ellipse(p.x, p.y - bodyH * 0.5, cw, bodyH * 0.62, 0, 0, Math.PI * 2); ctx.fill(); }
+  for (let i = 0; i < 8; i++) { const ang = age * 5.2 + i * Math.PI / 4, hh = ((age * 0.55 + i / 8) % 1), yy = p.y - hh * bodyH * 1.1, rx = 2.6 * S * sc * (1 - hh * 0.35), xx = p.x + Math.cos(ang) * rx, front = Math.sin(ang) > 0;
+    ctx.globalAlpha = a * (front ? 1 : 0.45) * (1 - hh * 0.6); const rs = (front ? 3.4 : 2.4) * (0.7 + 0.3 * Math.sin(age * 20 + i));
+    const sg = ctx.createRadialGradient(xx, yy, 0, xx, yy, rs * 3); sg.addColorStop(0, '#fffbe0'); sg.addColorStop(0.35, i % 2 ? '#ffd860' : '#9fe8ff'); sg.addColorStop(1, 'rgba(255,200,80,0)'); ctx.fillStyle = sg; ctx.beginPath(); ctx.arc(xx, yy, rs * 3, 0, Math.PI * 2); ctx.fill(); }
+  ctx.globalCompositeOperation = 'source-over';
+  // 머리 위 글씨 : 이름표 위 · 톡 튀어나와 반짝반짝
+  const pop = age < 0.3 ? 1.35 - 0.35 * (age / 0.3) : 1, blink = 0.72 + 0.28 * Math.abs(Math.sin(age * 7)), rise = age * 6;
+  ctx.globalAlpha = a * blink; const A = uiArt('tt_lvup'), cy = top - 30 - rise;
+  if (A) { const h = 30 * pop, w = h * A.w / A.h; ctx.imageSmoothingQuality = 'high'; ctx.drawImage(A._img, p.x - w / 2, cy - h / 2, w, h); }
+  else { ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `900 ${Math.round(18 * pop)}px ${UIF}`; ctx.lineJoin = 'round'; ctx.lineWidth = 5; ctx.strokeStyle = '#3a1a02'; ctx.strokeText('LEVEL UP!', p.x, cy); ctx.fillStyle = '#ffe36a'; ctx.fillText('LEVEL UP!', p.x, cy); }
+  ctx.restore(); }
+let lvPre = 0;
+// 글씨 그림을 미리 풀어 둠 (첫 레벨업부터 그림으로)
+{ const nt0 = drawNameTag; drawNameTag = function (f) { const r = nt0.apply(this, arguments); if (!lvPre && f === G.player) { lvPre = 1; try { uiArt('tt_lvup'); } catch (e) {} } if (f && f.lvUpT) lvUpOver(f); return r; }; window.drawNameTag = drawNameTag; }
+{ const lu1 = levelUpFx; levelUpFx = function (ch, lv0) { const r = lu1.apply(this, arguments);
+    if (G.player && curChar && curChar() === ch) G.player.lvUpT = G.real;
+    if (typeof window.netMeNow === 'function') setTimeout(window.netMeNow, 0);         // 서버 : 남에게도 바로
+    return r; }; window.levelUpFx = levelUpFx; }
+window.lvUpOver = lvUpOver;
+}
+</script>
+<script>
+// ════════════════════════════════════════════════════════════════
+//  휴대폰 화면 배치 (10-06 주인님)
+//   ① 진짜 세로 모드 : «마을에선 세로 · 가로 다 되게 · 사냥터는 가로만»
+//      폰을 세로로 들고 마을에 있으면 → 위에 게임 화면 (똑바로) · 아래에 채팅 · 조이스틱 · 단추
+//      사냥터 · 대결 · 창(가방 · 상점 …) · 대화창 · 전체 지도는 글씨가 작아지니 예전처럼 가로로 돌려 보여 줌
+//      (전체 화면일 때 «가로 고정» 은 사냥터에서만 · 마을에서는 풂)
+//   ② 가로로 채팅 칠 때 : 키보드가 올라오면 게임 화면 전체를 키보드 위 칸에 맞게 줄이고 글쓰기 칸은 그 바로 밑
+// ════════════════════════════════════════════════════════════════
+{
+const PT = { on: false, want: false, logK: '', logLast: null, menu: false, lockK: '' };
+const KB = { on: false, act: false, base: 0 };
+const isTxt = el => !!(el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && /^(text|search|number|)$/i.test(el.type || ''))));
+function portraitDev() {
+  if (!COARSE) return false;
+  try { const o = screen.orientation && screen.orientation.type; if (o) return o.indexOf('portrait') === 0; } catch (e) {}
+  if (typeof window.orientation === 'number') return window.orientation % 180 === 0;
+  return window.innerHeight > window.innerWidth * 1.1; }
+function ptWant() {
+  if (!portraitDev() || G.state !== 'play' || !G.map || !G.map.peace || !G.player || G.duel || G.training) return false;
+  if (G.help || (M.mapMode || 0) === 2) return false;                                         // 도움말 · 전체 지도 : 가로로
+  if (typeof touchModal === 'function' && touchModal()) return false;                          // 대화창 · 다른 사람 메뉴 · 물약 설정 : 가로로
+  if (typeof EMO !== 'undefined' && EMO.open) return false;
+  return true; }
+window.ptOn = () => PT.on;
+
+// ── 화면 자리 (p6_game rotStage 를 바꿈 : fit() 이 부름) ──
+rotStage = function () {
+  const W = window.innerWidth, H = window.innerHeight, pd = portraitDev();
+  PT.on = ptWant(); const rot = pd && !PT.on && !ROT.typing; ROT.on = rot;
+  document.body.classList.toggle('pt', PT.on);
+  let ret = [W, H];
+  document.body.classList.toggle('kbm', !!(KB.act && !pd));                                     // 키보드 : 채팅 칸을 한 줄로
+  const cb = document.getElementById('chatBox');
+  for (const id of ['wrap', 'ov']) { const el = document.getElementById(id); if (!el) continue; const s = el.style;
+    s.width = s.height = s.left = s.top = s.right = s.bottom = s.transform = '';
+    if (rot) { s.width = H + 'px'; s.height = W + 'px'; s.left = ((W - H) / 2) + 'px'; s.top = ((H - W) / 2) + 'px'; s.right = 'auto'; s.bottom = 'auto'; s.transform = 'rotate(90deg)'; ret = [H, W]; }
+    else if (PT.on && id === 'wrap') { const h = Math.round(W * 9 / 16); s.left = '0px'; s.top = '0px'; s.width = W + 'px'; s.height = h + 'px'; s.right = 'auto'; s.bottom = 'auto'; ret = [W, h]; }
+    else if (KB.act && !pd && id === 'wrap') { const vv = window.visualViewport, vh = vv ? vv.height : H, off = vv ? vv.offsetTop : 0, ch = (cb && cb.offsetHeight) || 96, av = Math.max(120, Math.round(vh - ch - 8));
+      s.left = '0px'; s.width = W + 'px'; s.top = off + 'px'; s.height = av + 'px'; s.right = 'auto'; s.bottom = 'auto'; ret = [W, av];
+      if (cb) { const cs = cb.style; cs.top = (off + av + 4) + 'px'; cs.bottom = 'auto'; cs.left = '8px'; cs.right = '8px'; cs.width = 'auto'; } } }
+  if (cb && !(KB.act && !pd)) { const cs = cb.style; cs.top = cs.bottom = cs.left = cs.right = cs.width = ''; }
+  if (PT.on) ptSize();
+  return ret; };
+window.rotStage = rotStage;
+
+// 바뀌면 다시 맞춤 (마을 ↔ 사냥터 · 창 열고 닫기 · 폰 돌리기)
+setInterval(() => {
+  const w = ptWant(); if (w !== PT.on) fit();
+  if (PT.on) { ptLog(); ptMenuSync(); }
+  // 전체 화면 «가로 고정» : 사냥터 · 대결만 (마을은 풀어서 세로로도)
+  try { if (document.fullscreenElement && screen.orientation && screen.orientation.lock) {
+    const k = (G.state === 'play' && G.map && G.map.peace && !G.duel) ? 'free' : (G.state === 'play' ? 'land' : PT.lockK);
+    if (k && k !== PT.lockK) { PT.lockK = k; if (k === 'free') { if (screen.orientation.unlock) screen.orientation.unlock(); } else screen.orientation.lock('landscape').catch(() => {}); } } } catch (e) {}
+}, 200);
+if (window.screen && screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', () => setTimeout(fit, 60));
+{ const tf0 = touchFullscreen; touchFullscreen = function () {                                  // 처음 전체 화면 : 마을에서는 가로로 묶지 않음
+    if (G.map && G.map.peace && !G.duel) { if (TOUCH.fsTried || document.fullscreenElement) return; TOUCH.fsTried = true; PT.lockK = 'free';
+      try { const el = document.documentElement; const pr = el.requestFullscreen ? el.requestFullscreen({ navigationUI: 'hide' }) : (el.webkitRequestFullscreen ? el.webkitRequestFullscreen() : null); if (pr && pr.catch) pr.catch(() => {}); } catch (e) {} return; }
+    PT.lockK = 'land'; return tf0.apply(this, arguments); }; window.touchFullscreen = touchFullscreen; }
+
+// ── 세로 마을 : 아래 칸 (채팅 · 조이스틱 · 단추) ──
+const st = document.createElement('style');
+st.textContent = `
+#ptPad{display:none;position:fixed;left:0;right:0;bottom:0;top:56.25vw;z-index:7;background:linear-gradient(#1a100a,#0c0806);border-top:2px solid rgba(216,168,80,.6);flex-direction:column;font-family:"Pretendard","Malgun Gothic",sans-serif;-webkit-user-select:none;user-select:none;touch-action:none}
+body.pt #ptPad{display:flex}
+body.pt #wrap{align-items:flex-start}
+#ptPad .ptTop{display:flex;gap:6px;padding:8px 8px 6px}
+#ptPad button{background:linear-gradient(#3a2416,#1e1209);border:1.5px solid rgba(216,168,80,.8);border-radius:12px;color:#fff2d6;font:800 15px "Pretendard","Malgun Gothic",sans-serif;padding:0;touch-action:none}
+#ptPad button:active,#ptPad button.on{background:linear-gradient(#5a3a20,#2e1c0e);border-color:#ffe2a0}
+#ptPad .ptTop button{flex:1;height:42px}
+#ptPad .ptTop button.say{flex:1.4;color:#9fd8ff;border-color:rgba(159,216,255,.7)}
+#ptLog{flex:1;min-height:60px;overflow-y:auto;margin:0 8px;padding:6px 10px;background:rgba(8,6,20,.55);border:1px solid rgba(216,168,80,.25);border-radius:10px;color:#fff;line-height:1.45;touch-action:pan-y}
+#ptLog div{word-break:break-all}
+#ptLog .ptEmpty{color:rgba(230,220,200,.45)}
+#ptMenu{display:none;flex:1;margin:0 8px;overflow-y:auto;grid-template-columns:repeat(4,1fr);gap:6px;align-content:start}
+#ptPad.menu #ptMenu{display:grid}#ptPad.menu #ptLog{display:none}
+#ptMenu button{height:48px;font-size:15px;position:relative}
+#ptMenu button i{position:absolute;right:-4px;top:-4px;min-width:18px;height:18px;border-radius:9px;background:#ff4a5a;color:#fff;font:900 11px sans-serif;line-height:18px;font-style:normal}
+#ptPad .ptCtl{position:relative;height:min(210px,30vh);flex:none}
+#ptPad .ptStick{position:absolute;left:18px;bottom:18px;width:min(150px,38vw);height:min(150px,38vw);border-radius:50%;background:radial-gradient(rgba(255,214,140,.10),rgba(255,214,140,.03));border:2px solid rgba(216,168,80,.45);touch-action:none}
+#ptPad .ptKnob{position:absolute;left:50%;top:50%;width:42%;height:42%;margin:-21% 0 0 -21%;border-radius:50%;background:radial-gradient(circle at 40% 35%,#6a4628,#2a180c);border:2px solid #d8a850;box-shadow:0 4px 10px rgba(0,0,0,.6)}
+#ptPad .ptBtns button{position:absolute;border-radius:50%;font-size:17px}
+#ptPad .ptBtns .bz{right:18px;bottom:96px;width:86px;height:86px;font-size:26px;line-height:1}
+#ptPad .ptBtns .bz small{display:block;font-size:11px;font-weight:700;color:#e8d8b8;margin-top:3px}
+#ptPad .ptBtns .bj{right:18px;bottom:16px;width:70px;height:70px}
+#ptPad .ptBtns .bd{right:100px;bottom:16px;width:70px;height:70px}
+body.pt.rtype #ptPad .ptCtl{display:none}
+body.pt.rtype #ptPad .ptTop{visibility:hidden}
+body.kbm #chatBox.show{display:flex;align-items:center;gap:6px;padding:5px 6px}
+body.kbm #chatModes{display:flex;flex:none;gap:2px}
+body.kbm #chatModes button{padding:4px 7px;font-size:11px;margin:0}
+body.kbm #chatBox>div:last-child{margin-top:0!important;flex:1;min-width:0}
+body.pt.rtype #ptLog{margin-top:58px}
+`;
+document.head.appendChild(st);
+const pad = document.createElement('div'); pad.id = 'ptPad';
+pad.innerHTML = `<div class="ptTop"><button class="say" data-a="say">말하기</button><button data-a="menu">메뉴</button><button data-a="map">지도</button><button data-a="emo">감정</button></div>
+<div id="ptLog"></div><div id="ptMenu"></div>
+<div class="ptCtl"><div class="ptStick"><div class="ptKnob"></div></div><div class="ptBtns"><button class="bz" data-k="z">Z<small>말 걸기</small></button><button class="bd" data-k="dash">대시</button><button class="bj" data-k="jump">점프</button></div></div>`;
+document.body.appendChild(pad);
+const $log = pad.querySelector('#ptLog'), $menu = pad.querySelector('#ptMenu'), $stick = pad.querySelector('.ptStick'), $knob = pad.querySelector('.ptKnob');
+function ptSize() { pad.style.top = Math.round(window.innerWidth * 9 / 16) + 'px'; }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const okCol = c => (typeof c === 'string' && /^[#a-z0-9(),.\s%]+$/i.test(c)) ? c : '#fff';
+function ptLog() {
+  if (PT.menu) return; const L = G.chat || [], last = L[L.length - 1], fs = (typeof chatFs === 'function' ? chatFs() : 15) + 1, k = L.length + '|' + fs;
+  if (k === PT.logK && last === PT.logLast) return; PT.logK = k; PT.logLast = last;
+  $log.style.fontSize = fs + 'px';
+  $log.innerHTML = L.length ? L.slice(-40).map(m => '<div>' + (m.parts || []).map(([t, c]) => `<span style="color:${okCol(c)}">${esc(t)}</span>`).join('') + '</div>').join('') : '<div class="ptEmpty">채팅이 여기에 보여요 · «말하기» 를 눌러 써 보세요</div>';
+  $log.scrollTop = $log.scrollHeight; }
+// 메뉴 : 컴퓨터 단추 줄과 같은 것 (누르면 그 창이 열리고 · 창은 가로로 보임)
+function ptMenuItems() { return [].concat(window.HUD_ROW1 || [], window.HUD_ROW2 || [], window.MOB_EXTRA || []).filter(m => m.k !== '지도'); }
+function ptMenuBuild() { const its = ptMenuItems(); $menu.innerHTML = its.map((m, i) => `<button data-i="${i}" style="border-color:${okCol(m.col)}">${esc(m.k)}<i style="display:none"></i></button>`).join(''); PT.items = its; }
+function ptMenuSync() { if (!PT.menu || !PT.items) return; $menu.querySelectorAll('button').forEach((b, i) => { const m = PT.items[i], n = m && m.badge ? (m.badge() || 0) : 0, el = b.querySelector('i'); el.style.display = n > 0 ? '' : 'none'; el.textContent = n; if (m && m.bcol) el.style.background = m.bcol; }); }
+function ptMenuOpen(on) { PT.menu = on; pad.classList.toggle('menu', on); pad.querySelector('[data-a=menu]').classList.toggle('on', on); pad.querySelector('[data-a=menu]').textContent = on ? '닫기' : '메뉴'; if (on) { ptMenuBuild(); ptMenuSync(); } else { PT.logK = ''; ptLog(); } }
+$menu.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const m = PT.items && PT.items[+b.dataset.i]; ptMenuOpen(false); if (m && m.fn) { AU.play('select'); m.fn(); } });
+pad.querySelector('.ptTop').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const a = b.dataset.a; AU.init();
+  if (a === 'say') { ptMenuOpen(false); openChat(); }
+  else if (a === 'menu') ptMenuOpen(!PT.menu);
+  else if (a === 'map') { ptMenuOpen(false); M.mapMode = 2; AU.play('select'); }
+  else if (a === 'emo') { ptMenuOpen(false); if (typeof EMO !== 'undefined') EMO.open = true; AU.play('select'); } });
+$log.addEventListener('click', () => { if (!G.chatOpen) openChat(); });
+// 조이스틱 (손가락을 댄 채 밀기)
+let sid = null;
+const stickAt = e => { const r = $stick.getBoundingClientRect(), R = r.width / 2; let dx = (e.clientX - r.left - R) / (R * 0.8), dy = (e.clientY - r.top - R) / (R * 0.8); const m = Math.hypot(dx, dy); if (m > 1) { dx /= m; dy /= m; }
+  $knob.style.transform = `translate(${dx * R * 0.55}px,${dy * R * 0.55}px)`;
+  const ax = Math.abs(dx) > 0.28 ? Math.sign(dx) : 0, ay = Math.abs(dy) > 0.36 ? Math.sign(dy) : 0, set = (k, on) => { if (on) pressKey(k); else releaseKey(k); };
+  set('right', ax > 0); set('left', ax < 0); set('down', ay > 0); set('up', ay < 0); };
+const stickOff = () => { sid = null; $knob.style.transform = ''; for (const k of ['left', 'right', 'up', 'down']) releaseKey(k); };
+$stick.addEventListener('pointerdown', e => { e.preventDefault(); sid = e.pointerId; try { $stick.setPointerCapture(sid); } catch (er) {} AU.init(); TOUCH.on = true; stickAt(e); });
+$stick.addEventListener('pointermove', e => { if (e.pointerId === sid) stickAt(e); });
+for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) $stick.addEventListener(ev, e => { if (e.pointerId === sid) stickOff(); });
+// 단추 (누르는 동안)
+pad.querySelectorAll('.ptBtns button').forEach(b => { const k = b.dataset.k;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); try { b.setPointerCapture(e.pointerId); } catch (er) {} AU.init(); TOUCH.on = true; pressKey(k); b.classList.add('on'); });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) b.addEventListener(ev, () => { releaseKey(k); b.classList.remove('on'); }); });
+window.addEventListener('blur', stickOff);
+// 세로 마을에서는 캔버스의 손가락 단추 · 왼쪽 아래 채팅 글은 안 그림 (아래 칸에 큰 것이 있음)
+{ const dt0 = drawTouchUI; drawTouchUI = function () { if (PT.on) return; return dt0.apply(this, arguments); }; window.drawTouchUI = drawTouchUI; }
+{ const dc0 = drawChatLog; drawChatLog = function () { if (PT.on) return; return dc0.apply(this, arguments); }; window.drawChatLog = drawChatLog; }
+{ const tl0 = touchLayout; touchLayout = function () { return PT.on ? [] : tl0.apply(this, arguments); }; window.touchLayout = touchLayout; }
+
+// ── ② 가로로 채팅 : 키보드가 올라오면 게임 화면을 그 위 칸에 맞춤 ──
+const kbCheck = () => { if (!KB.on) return; const vv = window.visualViewport, vh = vv ? vv.height : window.innerHeight, act = vh < KB.base * 0.85;
+  if (act !== KB.act || act) { const k = act + '|' + Math.round(vh) + '|' + Math.round(vv ? vv.offsetTop : 0); if (k !== KB.k) { KB.k = k; KB.act = act; fit(); } } };
+document.addEventListener('focusin', e => { if (!COARSE || !isTxt(e.target) || portraitDev()) return; if (!KB.on) KB.base = Math.max(window.innerHeight, window.visualViewport ? window.visualViewport.height : 0); KB.on = true; kbCheck(); setTimeout(kbCheck, 300); setTimeout(kbCheck, 700); });
+document.addEventListener('focusout', () => { setTimeout(() => { if (isTxt(document.activeElement) || !KB.on) return; KB.on = false; KB.act = false; KB.k = ''; fit(); }, 200); });
+if (window.visualViewport) { visualViewport.addEventListener('resize', kbCheck); visualViewport.addEventListener('scroll', kbCheck); }
+window.PT_STATE = PT; window.KB_STATE = KB;
 }
 </script>
 <script>__ldDone()</script>
