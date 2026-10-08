@@ -119,7 +119,7 @@ canvas{display:block;cursor:default}
 </div>
 <script>
 (function () {
-  var N = 101, MB = 146603982, n = 0, got = 0, el = function (id) { return document.getElementById(id); };
+  var N = 101, MB = 146700006, n = 0, got = 0, el = function (id) { return document.getElementById(id); };
   var G0 = 0.2942, SY = 0.261, CL = [[0.3242, 0.2629], [0.3573, 0.2649], [0.3904, 0.2649], [0.4236, 0.2649], [0.4567, 0.2669], [0.4898, 0.2669], [0.5229, 0.2669], [0.556, 0.2669], [0.5891, 0.2689], [0.6222, 0.2669], [0.6553, 0.2669], [0.6884, 0.2669], [0.7215, 0.2669], [0.7546, 0.2649], [0.7878, 0.2649], [0.8209, 0.261], [0.854, 0.259], [0.8871, 0.257], [0.9202, 0.251], [0.9533, 0.2311]];   // 칼날 가운데 줄 (가로 · 세로 비율) : 칼집이 이 줄을 따라 빠짐
   function cy(x) { if (x <= CL[0][0]) return CL[0][1]; for (var i = 1; i < CL.length; i++) if (x <= CL[i][0]) { var p = CL[i - 1], q = CL[i]; return p[1] + (q[1] - p[1]) * (x - p[0]) / (q[0] - p[0]); }
     return CL[CL.length - 1][1]; }
@@ -142,7 +142,7 @@ canvas{display:block;cursor:default}
   show();
 })();
 </script>
-<script>const BUILD = "10-08 04:04", TEST_BUILD = false, FRIEND_BUILD = true;</script>
+<script>const BUILD = "10-08 09:00", TEST_BUILD = false, FRIEND_BUILD = true;</script>
 <script>
 // ════════════════════════════════════════════════════════════════
 //  그림판 깨우기 (10-07 · 카페 · 방에 오래 있다 나오면 마을 렉)
@@ -5768,7 +5768,7 @@ function playTick(dt) {
         if (pressed('esc')) { G.help = false; return; }
       }
       if (UI.click && G.hudBtns && G.hudBtns.length) {           // 오른쪽 위 단추
-        for (const b of G.hudBtns) if (UI.cx >= b.x && UI.cx <= b.x + b.w && UI.cy >= b.y && UI.cy <= b.y + b.h) { AU.play('select'); UI.click = false; b.fn(); return; }
+        const hp = window.hudPt ? hudPt(UI.cx, UI.cy) : { x: UI.cx, y: UI.cy }; for (const b of G.hudBtns) if (hp.x >= b.x && hp.x <= b.x + b.w && hp.y >= b.y && hp.y <= b.y + b.h) { AU.play('select'); UI.click = false; b.fn(); return; }
       }
       { const t = G.partyTag; if (UI.click && t && G.real - t.t < 0.25 && UI.cx >= t.x && UI.cx <= t.x + t.w && UI.cy >= t.y && UI.cy <= t.y + t.h) { UI.click = false; openParty(); return; } }   // 머리 위 파티 이름표
       if ((M.mapMode || 0) && !G.fade && !G.chatOpen && pressed('esc')) { M.mapMode = 0; AU.play('select'); return; }   // N 으로 켠 지도 : Esc 로 닫기 (09-30)
@@ -7078,8 +7078,8 @@ function renderMap() {
   ctx.translate(0, camY);
   if (G.flash > 0) { ctx.fillStyle = hexA(G.flashCol, G.flash); ctx.fillRect(-40, -40, VW + 80, VH + 80); }
   ctx.translate(0, -camY); drawVignette(0.95);
-  ctx.restore(); ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  drawHUD(); drawTouchUI(); drawOverlayState(); drawFadeOverlay();
+  ctx.restore(); ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); if (window.hudXf) hudXf();   // 10-08 : 세로 마을 확대 화면 → 글자 · 단추는 보이는 칸 안에 원래 크기로
+  drawHUD(); drawTouchUI(); drawOverlayState(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); drawFadeOverlay();
   ctx.restore();
 }
 function drawFadeOverlay() {                               // 맵 넘어갈 때 : 먹물이 번지듯 덮었다가 가운데부터 걷힘
@@ -16208,7 +16208,7 @@ Object.assign(window, { TH_SK, thTargets });
 <script src="그림/새틀마여1.js?v=4346e64a94" onload="__ld(7135661)" onerror="__ld(7135661,1)"></script>
 <script src="그림/새틀마여2.js?v=ee40b7aa48" onload="__ld(3158504)" onerror="__ld(3158504,1)"></script>
 <script src="그림/새옷아이콘.js?v=3b8c2514cf" onload="__ld(688168)" onerror="__ld(688168,1)"></script>
-<script src="그림/치장아이콘.js?v=5e9f2d7c99" onload="__ld(1180571)" onerror="__ld(1180571,1)"></script>
+<script src="그림/치장아이콘.js?v=e7bc10139f" onload="__ld(1276595)" onerror="__ld(1276595,1)"></script>
 <script src="그림/치장날개.js?v=3872b600db" onload="__ld(656907)" onerror="__ld(656907,1)"></script>
 <script src="그림/치장얼굴.js?v=dcd4a8695f" onload="__ld(500996)" onerror="__ld(500996,1)"></script>
 <script src="그림/귀걸이.js?v=80812eadfc" onload="__ld(76311)" onerror="__ld(76311,1)"></script>
@@ -21341,8 +21341,8 @@ const CZ_LIST = [
   ['czb_m_sweat', 'czb', '오버핏 맨투맨 와이드진'], ['czb_m_tech', 'czb', '블랙 테크웨어'], ['czb_m_linen', 'czb', '린넨 셔츠 슬랙스'], ['czb_m_jersey', 'czb', '90년대 농구 저지'], ['czb_m_wind', 'czb', '원색 바람막이 트랙팬츠'], ['czb_m_overall', 'czb', '데님 멜빵바지'], ['czb_m_polo', 'czb', '폴로 반바지 롱삭스'], ['czb_m_hanbok', 'czb', '생활한복'], ['czb_f_pinafore', 'czb', '데님 멜빵 스커트'], ['czb_f_hood', 'czb', '오버핏 후드 니삭스'], ['czb_f_crop', 'czb', '90년대 크롭티 와이드진'], ['czb_f_shortall', 'czb', '청멜빵 반바지'], ['czb_f_lace', 'czb', '레이스 롱플레어'], ['czb_f_leather', 'czb', '가죽재킷 롱부츠'], ['czb_f_cheollik', 'czb', '철릭 원피스'], ['czb_f_puff', 'czb', '퍼프소매 원피스'], ['czc_denimcap', 'czc', '워싱 데님 볼캡'], ['czc_swordhat', 'czc', '흑죽 검객 삿갓'],   // 10-06 새옷 16벌 · 새 모자 3 (남 8 · 여 8 · Higgsfield · art\공용 옷\틀2) — 그림이 들어온 직업 · 성별만 가게에 보임
   ['czb_m2_cord', 'czb', '코듀로이 셔켓 카고'], ['czb_m2_hawaii', 'czb', '하와이안 셔츠'], ['czb_m2_wuxia', 'czb', '무협 도포'], ['czb_m2_flannel', 'czb', '체크 플란넬 찢청'], ['czb_m2_duffle', 'czb', '더플코트 목도리'], ['czb_m2_longcoat', 'czb', '검은 롱코트 터틀넥'], ['czb_m2_cowboy', 'czb', '카우보이'], ['czb_m2_bomber', 'czb', '검은 항공점퍼'], ['czb_f2_check', 'czb', '체크 셔츠원피스'], ['czb_f2_hanbok', 'czb', '파스텔 개량한복'], ['czb_f2_sailor', 'czb', '세일러 블라우스'], ['czb_f2_fur', 'czb', '흰 퍼 코트'], ['czb_f2_wuxia', 'czb', '여협 무복'], ['czb_f2_jump', 'czb', '베이지 점프수트'], ['czb_f2_hawaii', 'czb', '하와이안 원피스'], ['czb_f2_goth', 'czb', '고딕 원피스'],   // 10-07 새옷2 16벌 (남 8 · 여 8)
   ['czb_m3_bear', 'czb', '곰 귀 플리스 점퍼'], ['czb_m3_raincoat', 'czb', '노란 우비'], ['czb_m3_starpj', 'czb', '별무늬 잠옷'], ['czb_m3_fox', 'czb', '여우 꼬리 후드'], ['czb_m3_prince', 'czb', '밤의 왕자 연미복'], ['czb_m3_starcape', 'czb', '별 망토 견습생'], ['czb_m3_knight', 'czb', '아카데미 기사복'], ['czb_m3_varsity', 'czb', '스트릿 바시티'], ['czb_f3_strawberry', 'czb', '딸기우유 플리스 코트'], ['czb_f3_snow', 'czb', '눈의 공주 코트'], ['czb_f3_redcape', 'czb', '빨간 망토'], ['czb_f3_cloud', 'czb', '구름 우비'], ['czb_f3_bakery', 'czb', '빵집 앞치마 드레스'],   // 10-07 새옷3 13벌 (남 8 · 여 5 · 자동 뽑기)
-  ['czb_m4_wind', 'czb', '블랙 윈드브레이커룩'], ['czb_m4_pinstripe', 'czb', '핀스트라이프 댄디룩'], ['czb_m4_cable', 'czb', '꽈배기 니트 크림룩'], ['czb_m4_cargo', 'czb', '반팔 카고 유틸리티룩'], ['czb_m4_suspender', 'czb', '서스펜더 워크룩'], ['czb_m4_shirt', 'czb', '셔츠 슬랙스 클린룩'], ['czb_m4_suede', 'czb', '스웨이드 블루종룩'], ['czb_m4_vest', 'czb', '아메카지 유틸리티룩'], ['czb_m4_stripe', 'czb', '스트라이프 와이드 데님룩'], ['czb_m4_denim', 'czb', '빈티지 데님 레이어드룩'], ['czb_m4_check', 'czb', '체크 셔츠 디스트로이드룩'], ['czb_m4_skyknit', 'czb', '하늘 니트 아이보리룩'], ['czb_m4_blackjean', 'czb', '흑청 재킷 데님룩'], ['czb_c3_catpj', 'czb', '고양이 잠옷'], ['czb_c3_redpad', 'czb', '빨간 패딩'], ['czb_c3_autumn', 'czb', '가을 가디건'], ['czb_f3_idol', 'czb', '무대 아이돌'], ['czb_f5_varsity', 'czb', '네이비 바시티 체크룩'], ['czb_f5_trench', 'czb', '라벤더 트렌치 스카프룩'], ['czb_f5_slacks', 'czb', '초콜릿 와이드 슬랙스룩'], ['czb_f5_rider', 'czb', '버건디 라이더 니트룩'], ['czb_f5_fur', 'czb', '아이보리 퍼 재킷룩'], ['czb_m5_safari', 'czb', '사파리 필드룩'], ['czb_m5_crop', 'czb', '차콜 크롭 와이드룩'], ['czb_m5_suit', 'czb', '오트밀 오버핏 수트룩'], ['czb_m5_collarless', 'czb', '크림 노카라 셋업룩'], ['czb_m5_longshirt', 'czb', '네이비 롱셔츠 와이드룩'],   // 10-08 새옷5 여 5 · 남 5   // 10-07 새옷4 남자 13 · 새옷3 커플 4 (고양이 잠옷 · 빨간 패딩 · 가을 가디건 남녀 · 무대 아이돌 여)
-  ['czc_bucket', 'czc', '뽀글이 버킷햇'], ['czc_catbeanie', 'czc', '고양이 귀 비니'], ['czc_bandana', 'czc', '페이즐리 반다나'], ['czh_silvertail', 'czh', '은백 꽁지머리'], ['czh_spike', 'czh', '흑적 스파이크'], ['czh_silverbraid', 'czh', '은보라 땋은 생머리'], ['czh_crownhalf', 'czh', '금발 왕관 반묶음'], ['czh_starwave', 'czh', '별빛 웨이브'],   // 10-07 새 모자 3 (남녀) · 머리 5 (남 2 · 여 3) — 자동 뽑기
+  ['czb_m4_wind', 'czb', '블랙 윈드브레이커룩'], ['czb_m4_pinstripe', 'czb', '핀스트라이프 댄디룩'], ['czb_m4_cable', 'czb', '꽈배기 니트 크림룩'], ['czb_m4_cargo', 'czb', '반팔 카고 유틸리티룩'], ['czb_m4_suspender', 'czb', '서스펜더 워크룩'], ['czb_m4_shirt', 'czb', '셔츠 슬랙스 클린룩'], ['czb_m4_suede', 'czb', '스웨이드 블루종룩'], ['czb_m4_vest', 'czb', '아메카지 유틸리티룩'], ['czb_m4_stripe', 'czb', '스트라이프 와이드 데님룩'], ['czb_m4_denim', 'czb', '빈티지 데님 레이어드룩'], ['czb_m4_check', 'czb', '체크 셔츠 디스트로이드룩'], ['czb_m4_skyknit', 'czb', '하늘 니트 아이보리룩'], ['czb_m4_blackjean', 'czb', '흑청 재킷 데님룩'], ['czb_c3_catpj', 'czb', '고양이 잠옷'], ['czb_c3_redpad', 'czb', '빨간 패딩'], ['czb_c3_autumn', 'czb', '가을 가디건'], ['czb_f3_idol', 'czb', '무대 아이돌'], ['czb_f5_varsity', 'czb', '네이비 바시티 체크룩'], ['czb_f5_trench', 'czb', '라벤더 트렌치 스카프룩'], ['czb_f5_slacks', 'czb', '초콜릿 와이드 슬랙스룩'], ['czb_f5_rider', 'czb', '버건디 라이더 니트룩'], ['czb_f5_fur', 'czb', '아이보리 퍼 재킷룩'], ['czb_m5_safari', 'czb', '사파리 필드룩'], ['czb_m5_crop', 'czb', '차콜 크롭 와이드룩'], ['czb_m5_suit', 'czb', '오트밀 오버핏 수트룩'], ['czb_m5_collarless', 'czb', '크림 노카라 셋업룩'], ['czb_m5_longshirt', 'czb', '네이비 롱셔츠 와이드룩'], ['czb_m6_carpenter', 'czb', '코발트 카펜터룩'], ['czb_m6_corduroy', 'czb', '머스타드 코듀로이룩'], ['czb_m6_terracotta', 'czb', '테라코타 데님룩'], ['czb_m6_lilac', 'czb', '라일락 니트 슬랙스룩'], ['czb_m6_rose', 'czb', '로즈 셔츠 와이드룩'], ['czb_f6_lemon', 'czb', '레몬 카디건 데님룩'], ['czb_f6_marine', 'czb', '마린 스트라이프 면바지룩'], ['czb_f6_cargo', 'czb', '데님 셔츠 카고룩'], ['czb_f6_pink', 'czb', '핑크 맨투맨 흑청룩'], ['czb_f6_bolero', 'czb', '블랙 볼레로 데님룩'],   // 10-08 새옷5 여 5 · 남 5   // 10-07 새옷4 남자 13 · 새옷3 커플 4 (고양이 잠옷 · 빨간 패딩 · 가을 가디건 남녀 · 무대 아이돌 여)
+  ['czc_bucket', 'czc', '뽀글이 버킷햇'], ['czc_catbeanie', 'czc', '고양이 귀 비니'], ['czc_bandana', 'czc', '페이즐리 반다나'], ['czh_silvertail', 'czh', '은백 꽁지머리'], ['czh_spike', 'czh', '흑적 스파이크'], ['czh_silverbraid', 'czh', '은보라 땋은 생머리'], ['czh_crownhalf', 'czh', '금발 왕관 반묶음'], ['czh_starwave', 'czh', '별빛 웨이브'], ['czh_buzz', 'czh', '까까 버즈컷'], ['czh_bald', 'czh', '반짝 민머리'], ['czh_flamebald', 'czh', '불꽃갈기 민머리'], ['czh_mohawk', 'czh', '일렉 모히칸'], ['czh_afro', 'czh', '몽글 아프로'], ['czh_pinkbuzz', 'czh', '핑크 버즈컷'], ['czh_longhippie', 'czh', '밤색 롱 히피펌'], ['czh_twotone', 'czh', '블랙 금발 투톤 울프컷'], ['czh_drill', 'czh', '금발 드릴 트윈테일'], ['czh_shortperm', 'czh', '보라 뽀글 숏펌'],   // 10-07 새 모자 3 (남녀) · 머리 5 (남 2 · 여 3) — 자동 뽑기
   ['czb_whitelion', 'czb', '백사자 예복'], ['czn_whitelion', 'czn', '백사자 이름표'], ['czm_whitelion', 'czm', '백사자 말풍선'],   // 10-05 기간 한정판 (CZ_LIMITED)
   ['czp_wdragon', 'czp', '백사자 아기 용'], ['czp_haetae', 'czp', '홍매화 아기 해태'], ['czp_panther', 'czp', '근위대 아기 흑표범'], ['czp_bat', 'czp', '달밤 박쥐'],   // 10-05 한정판 펫 (용만 지금 팜)
   ['czn_cherry', 'czn', '벚꽃 이름표'], ['czn_starnight', 'czn', '별밤 이름표'], ['czn_flame', 'czn', '불꽃 이름표'], ['czn_snow', 'czn', '눈꽃 이름표'], ['czn_ocean', 'czn', '바다 이름표'], ['czn_cat', 'czn', '고양이 이름표'],   // 10-05 이름표 11
@@ -21922,6 +21922,8 @@ function frHeadW(fr) { try { const w = fr.w, h = fr.h, c = document.createElemen
 Object.assign(CZ_PRICE_ITEM, {"czb_f5_varsity": 300000, "czb_f5_trench": 500000, "czb_f5_slacks": 300000, "czb_f5_rider": 500000, "czb_f5_fur": 500000, "czb_m5_safari": 300000, "czb_m5_crop": 300000, "czb_m5_suit": 500000, "czb_m5_collarless": 300000, "czb_m5_longshirt": 300000});   // 10-08 새옷5 (임시 값 · 주인님 확인)
 Object.assign(CZ_PRICE_ITEM, { czb_m3_raincoat: 50000, czb_m2_hawaii: 100000, czb_m_linen: 200000, czb_m_jersey: 150000, czb_m4_wind: 500000, czb_m4_cable: 150000, czb_m4_check: 200000, czb_m4_skyknit: 150000, czb_m5_crop: 500000, czb_m5_longshirt: 500000, czb_m_wind: 300000, czb_m2_duffle: 200000, czb_m2_cowboy: 150000, czb_m3_fox: 300000, czb_m3_starcape: 100000 });   // 10-08 주인님이 정한 옷가게 값
 Object.assign(CZ_PRICE_ITEM, { czb_f2_hawaii: 100000, czb_f3_cloud: 50000, czb_f2_sailor: 100000, czb_f2_jump: 50000, czb_f3_strawberry: 100000, czb_c3_redpad: 100000, czb_c3_autumn: 100000, czb_f5_varsity: 150000, czb_f2_hanbok: 150000, czb_f3_redcape: 50000, czb_f3_bakery: 50000, czb_f5_fur: 100000, czb_f5_rider: 300000, czb_f2_fur: 500000, czb_f2_goth: 300000, czb_f3_snow: 500000, czb_f3_idol: 300000, czb_f5_trench: 1000000, czb_f5_slacks: 500000 });   // 10-08 주인님이 정한 여자 옷 값
+
+Object.assign(CZ_PRICE_ITEM, {"czb_m6_carpenter": 300000, "czb_m6_corduroy": 300000, "czb_m6_terracotta": 300000, "czb_m6_lilac": 300000, "czb_m6_rose": 300000, "czb_f6_lemon": 300000, "czb_f6_marine": 300000, "czb_f6_cargo": 300000, "czb_f6_pink": 300000, "czb_f6_bolero": 300000, "czh_buzz": 300000, "czh_bald": 300000, "czh_flamebald": 300000, "czh_mohawk": 300000, "czh_afro": 300000, "czh_pinkbuzz": 300000, "czh_longhippie": 300000, "czh_twotone": 300000, "czh_drill": 300000, "czh_shortperm": 300000});   // 10-08 새옷6 · 새머리3 (임시 30만 · 주인님 확인)
 </script>
 <script>
 // ════════════════════════════════════════════════════════════════
@@ -28807,7 +28809,7 @@ const PM = new Map(); let PM_txt = '', PS_top = null;                         //
       PS_top = s ? (s.__s || (s instanceof HTMLCanvasElement ? '?' : '그림')) + (mine ? ' · 내 캐릭터' : '') + ' · 그려넣기 ' + (s.__wn || 0) + ' · ' + (s.__t != null ? s.__t + '초' : '') : null; if (s) s.__wn = 0;
       PM_txt = [...PM].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([k, v]) => k + ' ' + (v / 60).toFixed(1)).join(' · '); PM.clear(); PS.clear(); }
     if (!G.map) return; const ppl = Math.max(0, PA.all - PA.bg - PA.near - PA.ui), t = '배경 ' + PA.bg.toFixed(1) + ' · 앞 ' + PA.near.toFixed(1) + ' · 사람·소품 ' + ppl.toFixed(1) + ' · 화면 ' + PA.ui.toFixed(1) + ' ms · 해상도 ' + Math.round(cv.width) + '×' + Math.round(cv.height) + (typeof BUILD !== 'undefined' ? ' · 판 ' + BUILD : '');
-    ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); ctx.font = '600 12px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+    ctx.save(); ctx.setTransform(DPR, 0, 0, DPR, 0, 0); if (window.hudXfB) hudXfB(); ctx.font = '600 12px sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
     const w = ctx.measureText(t).width + 14; ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(VW - w - 6, VH - 46, w, 20); ctx.fillStyle = '#d8e8ff'; ctx.fillText(t, VW - 13, VH - 30);
     const t2 = '느린 그림 : ' + (PS_txt || '-') + ' ms · 다시 잡음 ' + (typeof HEAL !== 'undefined' ? HEAL.n : 0), t3 = '느린 붓 : ' + (PM_txt || '-') + ' ms', t4 = '1등 그림판 : ' + (PS_top || '-');
     let yy = VH - 52; for (const [tx, col] of [[t2, '#ffe0a8'], [t3, '#c8f0c0'], [t4, '#f0c8e8']]) { const w2 = ctx.measureText(tx).width + 14; ctx.fillStyle = 'rgba(0,0,0,0.55)'; ctx.fillRect(VW - w2 - 6, yy - 16, w2, 20); ctx.fillStyle = col; ctx.fillText(tx, VW - 13, yy); yy -= 22; } ctx.restore(); }; window.perfDraw = perfDraw; }
@@ -29270,9 +29272,9 @@ rotStage = function () {
   document.body.classList.toggle('kbm', !!(KB.act && !pd));                                     // 키보드 : 채팅 칸을 한 줄로
   const cb = document.getElementById('chatBox');
   for (const id of ['wrap', 'ov']) { const el = document.getElementById(id); if (!el) continue; const s = el.style;
-    s.width = s.height = s.left = s.top = s.right = s.bottom = s.transform = '';
+    s.width = s.height = s.left = s.top = s.right = s.bottom = s.transform = ''; s.overflow = s.justifyContent = '';
     if (rot) { s.width = H + 'px'; s.height = W + 'px'; s.left = ((W - H) / 2) + 'px'; s.top = ((H - W) / 2) + 'px'; s.right = 'auto'; s.bottom = 'auto'; s.transform = 'rotate(90deg)'; ret = [H, W]; }
-    else if (PT.on && id === 'wrap') { const h = Math.round(W * 9 / 16); s.left = '0px'; s.top = '0px'; s.width = W + 'px'; s.height = h + 'px'; s.right = 'auto'; s.bottom = 'auto'; ret = [W, h]; }
+    else if (PT.on && id === 'wrap') { const h = ptH(W, H); s.left = '0px'; s.top = '0px'; s.width = W + 'px'; s.height = h + 'px'; s.right = 'auto'; s.bottom = 'auto'; s.overflow = 'hidden'; s.justifyContent = 'flex-start'; ret = [W, h]; }
     else if (KB.act && !pd && id === 'wrap') { const vv = window.visualViewport, vh = vv ? vv.height : H, off = vv ? vv.offsetTop : 0, ch = (cb && cb.offsetHeight) || 96, av = Math.max(120, Math.round(vh - ch - 8));
       s.left = '0px'; s.width = W + 'px'; s.top = off + 'px'; s.height = av + 'px'; s.right = 'auto'; s.bottom = 'auto'; ret = [W, av];
       if (cb) { const cs = cb.style; cs.top = (off + av + 4) + 'px'; cs.bottom = 'auto'; cs.left = '8px'; cs.right = '8px'; cs.width = 'auto'; } } }
@@ -29280,6 +29282,24 @@ rotStage = function () {
   if (PT.on) ptSize();
   return ret; };
 window.rotStage = rotStage;
+// 10-08 주인님 : 세로 마을 화면을 더 크게 (말 기록 칸을 줄이고) — 위아래로 늘리기만 하면 하늘 · 땅만 길어지니 «확대» : 사람 · 건물이 커지고 좌우는 나를 따라 잘림
+//   큰 그림판 크기는 그대로 · 보이는 크기(CSS)만 키워 가로를 잘라 보여 줌 · 글자 · 단추(HUD)는 보이는 칸 안에 원래 크기로
+function ptH(W, H) { const h0 = W * 9 / 16, ctl = Math.min(210, H * 0.30), hMax = H - ctl - 54 - 130, h = Math.max(h0, Math.min(h0 * 1.8, hMax)); PT.z = h / h0; PT.h = Math.round(h); return PT.h; }
+{ const fit0 = fit; fit = function () { const r = fit0.apply(this, arguments), c = cv.style;
+    if (PT.on && PT.z > 1.001 && !(typeof CF !== 'undefined' && CF.on)) { PT.cssW = Math.round(window.innerWidth * PT.z); c.width = PT.cssW + 'px'; c.height = PT.h + 'px'; c.flex = 'none'; PT.lastPx = null; }
+    else if (!(typeof CF !== 'undefined' && CF.on)) { c.transform = ''; c.flex = ''; PT.ox = null; PT.oxU = 0; }
+    return r; }; window.fit = fit; }
+window.addEventListener('resize', () => { if (PT.on) fit(); });
+const ptZoom = () => !!(PT.on && PT.z > 1.001 && G.player && G.state === 'play');
+window.hudXf = function () {                                       // 그릴 때 : 보이는 칸을 나를 따라 옮기고 · HUD 는 그 칸 안에
+  if (!ptZoom()) return;
+  const vw = VW / PT.z, p = scr(G.player.x, G.player.y, G.player.z), tx = Math.max(0, Math.min(VW - vw, p.x - vw / 2));
+  PT.ox = PT.ox == null ? tx : PT.ox + (tx - PT.ox) * 0.2;
+  const k = (PT.cssW || window.innerWidth * PT.z) / VW, px = Math.round(PT.ox * k);
+  if (px !== PT.lastPx) { PT.lastPx = px; cv.style.transform = 'translateX(' + (-px) + 'px)'; }
+  PT.oxU = px / k; ctx.setTransform(DPR / PT.z, 0, 0, DPR / PT.z, DPR * PT.oxU, 0); };
+window.hudXfB = function () { if (ptZoom()) ctx.setTransform(DPR / PT.z, 0, 0, DPR / PT.z, DPR * (PT.oxU || 0), DPR * (VH - VH / PT.z)); };   // 아래에 붙는 글 (성능 표시)
+window.hudPt = (x, y) => ptZoom() ? { x: (x - (PT.oxU || 0)) * PT.z, y: y * PT.z } : { x, y };
 
 // 바뀌면 다시 맞춤 (마을 ↔ 사냥터 · 창 열고 닫기 · 폰 돌리기)
 setInterval(() => {
@@ -29287,7 +29307,7 @@ setInterval(() => {
   if (PT.on) { ptLog(); ptMenuSync(); }
   // 전체 화면 «가로 고정» : 사냥터 · 대결만 (마을은 풀어서 세로로도)
   try { if (document.fullscreenElement && screen.orientation && screen.orientation.lock) {
-    const town = G.state === 'play' && G.map && G.map.peace && !G.duel, k = town ? (SET.orient === 'land' ? 'land' : SET.orient === 'port' ? 'port' : 'free') : (G.state === 'play' ? 'land' : PT.lockK);
+    const town = G.state === 'play' && G.map && G.map.peace && !G.duel, k = G.state === 'cafe' ? 'free' : town ? (SET.orient === 'land' ? 'land' : SET.orient === 'port' ? 'port' : 'free') : (G.state === 'play' ? 'land' : PT.lockK);   // 10-08 : 카페는 늘 폰 돌리는 대로 (가로로 들어가도 세로로)
     if (k && k !== PT.lockK) { PT.lockK = k; if (k === 'free') { if (screen.orientation.unlock) screen.orientation.unlock(); } else screen.orientation.lock(k === 'port' ? 'portrait' : 'landscape').catch(() => {}); } } } catch (e) {}
 }, 200);
 if (window.screen && screen.orientation && screen.orientation.addEventListener) screen.orientation.addEventListener('change', () => setTimeout(fit, 60));
@@ -29337,7 +29357,7 @@ pad.innerHTML = `<div class="ptTop"><button class="say" data-a="say">말하기</
 <div class="ptCtl"><div class="ptStick"><div class="ptKnob"></div></div><div class="ptBtns"><button class="bz" data-k="z">Z<small>말 걸기</small></button><button class="bd" data-k="dash">대시</button><button class="bj" data-k="jump">점프</button></div></div>`;
 document.body.appendChild(pad);
 const $log = pad.querySelector('#ptLog'), $menu = pad.querySelector('#ptMenu'), $stick = pad.querySelector('.ptStick'), $knob = pad.querySelector('.ptKnob');
-function ptSize() { pad.style.top = Math.round(window.innerWidth * 9 / 16) + 'px'; }
+function ptSize() { pad.style.top = (PT.h || Math.round(window.innerWidth * 9 / 16)) + 'px'; }
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const okCol = c => (typeof c === 'string' && /^[#a-z0-9(),.\s%]+$/i.test(c)) ? c : '#fff';
 function ptLog() {
@@ -29859,9 +29879,12 @@ const POS_NM = { bottom: '채팅 아래', left: '채팅 왼쪽', right: '채팅 
 function cfPos() { return SET.cfPos || 'bottom'; }                               // 10-07 주인님 : 채팅은 아래가 좋음 (기본)
 function layout() {
   const vv = window.visualViewport, W = Math.round(vv ? vv.width : innerWidth), H = Math.round(vv ? vv.height : innerHeight), oy = Math.round(vv ? vv.offsetTop : 0);
-  const TB = 46, port = H > W * 1.05; CF.port = port; let cv, pn, col = { x: 0, w: W };
+  const portDev = (() => { try { const o = screen.orientation && screen.orientation.type; if (o) return o.indexOf('portrait') === 0; } catch (e) {} return innerHeight > innerWidth; })();
+  const TB = 46, port = H > W * 1.05 || !!(CF.kb && COARSE && portDev); CF.port = port; let cv, pn, col = { x: 0, w: W };   // 10-08 : 키보드가 올라와 남은 칸이 납작해도 폰이 세로면 세로 배치
   const M = port ? 5 : 8, GP = port ? 6 : 10;                                 // 바깥 여백 · 화면과 채팅 사이 틈 (아주 조금)
-  if (port || cfPos() === 'bottom') {
+  const kbP = port && CF.kb && COARSE; $top.style.visibility = kbP ? 'hidden' : '';   // 10-08 주인님 : 세로에서 «말하기» → 화면은 줄이지 말고(오히려 크게) 말 기록이 키보드에 가려지게 · 위 띠도 잠깐 숨김
+  if (kbP) { const bar = 60; cv = { x: M, y: M, w: W - M * 2, h: Math.max(140, H - bar - GP - M * 2) }; pn = { x: M, y: cv.y + cv.h + GP, w: W - M * 2, h: Math.max(bar, H - cv.y - cv.h - GP - M), cls: 'bot gap' }; }
+  else if (port || cfPos() === 'bottom') {
     const avail = H - TB, kb = CF.kb && COARSE, k = kb ? 0.46 : port ? (CF.view === 'room' ? 0.6 : 0.63) : 0.7;
     const bar = 56, chH = Math.round(Math.max(150, (avail - bar) * k));
     if (!port) { const cw = Math.min(W, 1600); col = { x: Math.round((W - cw) / 2), w: cw }; }   // 아주 넓은 PC : 가운데 1600 (양옆은 카페 무늬)
@@ -29884,7 +29907,7 @@ function layout() {
     if (!CF.on) return rot0();
     ROT.on = false; document.body.classList.remove('pt', 'kbm');
     const L = layout(), w = document.getElementById('wrap'), s = w.style;
-    w.classList.add('gap'); s.transform = ''; s.right = 'auto'; s.bottom = 'auto'; s.left = L.cv.x + 'px'; s.top = (L.oy + L.cv.y) + 'px'; s.width = L.cv.w + 'px'; s.height = L.cv.h + 'px';
+    w.classList.add('gap'); s.transform = ''; s.overflow = s.justifyContent = ''; cv.style.transform = ''; cv.style.flex = ''; s.right = 'auto'; s.bottom = 'auto'; s.left = L.cv.x + 'px'; s.top = (L.oy + L.cv.y) + 'px'; s.width = L.cv.w + 'px'; s.height = L.cv.h + 'px';   // (10-08 : 마을 세로 확대 흔적도 지움)
     const o = document.getElementById('ov'); if (o) { const q = o.style; q.width = q.height = q.left = q.top = q.right = q.bottom = q.transform = ''; }
     return [L.cv.w, L.cv.h]; }; window.rotStage = rotStage; }
 let DX = 1, DY = 1;                                                            // 카페 화면 배율 (가로 · 세로) : 큰 그림판 크기는 마을 그대로 두고 보이는 크기만 바꿈
@@ -30460,7 +30483,9 @@ function roomRender() {
 // ════════════════ 움직임 · 카메라 ════════════════
 function camAnchor(y) { return 0.58 + 0.12 * clamp(1 - (y - 450) / 700, 0, 1); }                         // 카운터 가까이 가면 위 벽(칠판 · 창)이 보이게 내 자리를 아래로
 function camSnap() { const me = CF.me; if (!me) return; camZoom(); const vw = CF.cw / CF.cam.z, vh = CF.ch / CF.cam.z; CF.cam.x = camX(me.x, vw); CF.cam.y = clamp(me.y - vh * camAnchor(me.y), -150, HH - vh + 10); }
-function camZoom() { const w = CF.cw, h = CF.ch; CF.cam.z = Math.max(w / HW, Math.min(w / 600, h / (CF.port ? 760 : 600))); }
+function camZoom() { const w = CF.cw, h = CF.ch; let z = Math.max(w / HW, Math.min(w / 600, h / (CF.port ? 760 : 600)));
+  if (CF.kb && COARSE && CF.port && CF.zKeep) z = Math.max(w / HW, CF.zKeep); else if (!CF.kb) CF.zKeep = z;   // 10-08 : 글 쓰는 동안 사람 크기 그대로
+  CF.cam.z = z; }
 function camX(x, vw) { return vw >= HW ? (HW - vw) / 2 : clamp(x - vw / 2, 0, HW - vw); }
 function camTick(dt) { const me = CF.me; if (!me) return; camZoom(); const vw = CF.cw / CF.cam.z, vh = CF.ch / CF.cam.z, tx = camX(me.x, vw), ty = clamp(me.y - vh * camAnchor(me.y), -150, HH - vh + 10), k = 1 - Math.exp(-dt * 6); CF.cam.x += (tx - CF.cam.x) * k; CF.cam.y += (ty - CF.cam.y) * k; }
 function walkHall(e, dt) {
