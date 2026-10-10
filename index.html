@@ -32,6 +32,7 @@ canvas{display:block;cursor:default}
 #chatBox{left:16px;bottom:66px;width:520px;padding:8px;background:rgba(10,9,20,.9);border-color:rgba(255,214,140,.35)}
 #chatModes button{padding:4px 12px;font:800 12px sans-serif}
 #chatBox input[type=text]{width:100%;box-sizing:border-box;text-align:left;font:600 14px sans-serif;padding:8px 10px}
+#chatBox textarea#chatIn{display:block;background:#1c1008;border:1px solid #6a4a28;border-radius:8px;color:#fff;box-sizing:border-box;text-align:left;font:600 14px sans-serif;padding:8px 10px;line-height:18px;height:36px;resize:none;overflow:hidden;white-space:nowrap}
 #tuneBox{left:14px;top:110px;width:836px;max-height:580px;padding:12px 14px;overflow:auto}
 #tuneBox table{border-collapse:collapse;width:100%}
 #tuneBox th{font-size:11px;color:#9fb8d8;text-align:left;padding:2px 4px;position:sticky;top:0;background:rgba(10,10,18,.98)}
@@ -119,7 +120,7 @@ canvas{display:block;cursor:default}
 </div>
 <script>
 (function () {
-  var N = 101, MB = 146700006, n = 0, got = 0, el = function (id) { return document.getElementById(id); };
+  var N = 101, MB = 146711110, n = 0, got = 0, el = function (id) { return document.getElementById(id); };
   var G0 = 0.2942, SY = 0.261, CL = [[0.3242, 0.2629], [0.3573, 0.2649], [0.3904, 0.2649], [0.4236, 0.2649], [0.4567, 0.2669], [0.4898, 0.2669], [0.5229, 0.2669], [0.556, 0.2669], [0.5891, 0.2689], [0.6222, 0.2669], [0.6553, 0.2669], [0.6884, 0.2669], [0.7215, 0.2669], [0.7546, 0.2649], [0.7878, 0.2649], [0.8209, 0.261], [0.854, 0.259], [0.8871, 0.257], [0.9202, 0.251], [0.9533, 0.2311]];   // 칼날 가운데 줄 (가로 · 세로 비율) : 칼집이 이 줄을 따라 빠짐
   function cy(x) { if (x <= CL[0][0]) return CL[0][1]; for (var i = 1; i < CL.length; i++) if (x <= CL[i][0]) { var p = CL[i - 1], q = CL[i]; return p[1] + (q[1] - p[1]) * (x - p[0]) / (q[0] - p[0]); }
     return CL[CL.length - 1][1]; }
@@ -142,7 +143,7 @@ canvas{display:block;cursor:default}
   show();
 })();
 </script>
-<script>const BUILD = "10-08 09:00", TEST_BUILD = false, FRIEND_BUILD = true;</script>
+<script>const BUILD = "10-10 03:40", TEST_BUILD = false, FRIEND_BUILD = true;</script>
 <script>
 // ════════════════════════════════════════════════════════════════
 //  그림판 깨우기 (10-07 · 카페 · 방에 오래 있다 나오면 마을 렉)
@@ -251,7 +252,7 @@ const T = {
   RUN_MUL: 1.3, RUN_ACC: 0.7, STEP_UP: 1.0, STEP_DOWN: 0.9, FIELD_REGEN: 0, FIELD_MP_REGEN: 2, FIELD_MOB_SPD: 0.7, DRAGON_DIVE_T: 0.75, TOWN_REGEN: 0.03, POTION_CD: 1.2, PORTAL_HOLD: 0.35, DROP_LIFE: 30, DROP_R: 9.5, ACC_DROP: 0.006, FLEE_ODDS: 0.45, PASSIVE_POKE: 0.10, SP_PER_LV: 10,   // 장신구가 떨어질 확률   // 마을 달리기 · 발판 계단 허용 높이 · 사냥터 회복 · 포탈 ↑ 누르는 시간
   // 레벨 · 스탯 · 스킬 레벨 (전부 아주 작은 차이만 나게)
   DRAGON_SWIM_CYC: 0.6, DRAGON_LEN: 30, DRAGON_WAVE_A: 2.6, DRAGON_WAVE_D: 1.7, DRAGON_WAVE_L: 12, DRAGON_RISE_H: 19, DRAGON_HEAD_TILT: -0.38, DRAGON_WAVE_W: 1.6, MAX_LV: 99, SKILL_LV_MAX: 10, SKILL_LV_DMG: 0.02, SKILL_LV_CD: 0.01, EXP_STAGE: 1.2, EXP_DUEL: 60, EXP_KILL: 0.12,            // 스킬 1레벨당 피해 +2% (10레벨 = +18%)
-  STAT_STR: 0.5, STAT_AGI: 0.0015, STAT_AGI_MOVE: 0.0005, STAT_INT_ADD: 0.5, STAT_SK: 0.003,   // 힘 1 = 기본공격 +0.5 · 민첩 1 = 속도 +0.15% (300 이면 +45%) · 지력 1 = 마법 기본공격 +0.5 · 스킬 +0.3%
+  STAT_STR: 0.5, STAT_AGI: 0.0015, STAT_AGI_MOVE: 0.00025, STAT_INT_ADD: 0.5, STAT_SK: 0.003,   // 힘 1 = 기본공격 +0.5 · 민첩 1 = 속도 +0.15% (300 이면 +45%) · 이동 속도 +0.025% (10-10 주인님 : 예전 0.05% 의 반 · 1000 이면 +25%) · 지력 1 = 마법 기본공격 +0.5 · 스킬 +0.3%
   STAT_LUK_DODGE: 0.0007, STAT_LUK_CRIT: 0.001, CRIT_MUL: 1.25, STAT_LUK_GOLD: 0.00113, MAIN_STAT_MUL: 1.25,   // 행운 300 이면 회피 21% · 치명타 30% · 골드 +34% (골드는 2026-09-28 에 2/3 로)
 };
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v, lerp = (a, b, k) => a + (b - a) * k, rnd = (a, b) => a + Math.random() * (b - a),
@@ -1865,7 +1866,8 @@ function gearTake(ch, id, k) {             // 한 벌을 빼낸다 · 본래 것
   return v;
 }
 function gearSwapIn(ch, id, k) { const a = ch.dup && ch.dup[id]; if (!a || !a[k] || !ch.own || !ch.own[id]) return; const t = ch.own[id]; ch.own[id] = a[k]; a[k] = t; }   // 여벌을 낄 때
-function isBaseGear(id) { return /_base$/.test(id || ''); }            // 직업 기본 무기·옷 (벗거나 버릴 수 없음)
+const BASE_GEAR = new Set(['w_base', 'g_base', 'm_base', 't_base', 'su_s_plain', 'su_g_plain', 'su_m_plain', 'su_t_plain']);   // 10-09 : 직업 기본 무기 · 기본옷 (아무것도 안 낄 때 끼는 것)
+function isBaseGear(id) { return BASE_GEAR.has(id); }            // 직업 기본 무기·옷 (벗거나 버릴 수 없음)
 function gInst(ch, x) { return (x && typeof x === 'object') ? x : gearOwn(ch, x); }
 function enhList(ch, id) { const v = gInst(ch, id); return (v && v.e) || []; }
 function enhFree(ch, id) { const v = gInst(ch, id); return v ? Math.max(0, (v.s || 0) - v.e.length) : 0; }
@@ -2566,7 +2568,7 @@ function dropLoot(vic, gold) {
   // 무기 · 옷 : 그 몬스터 레벨까지 입을 수 있는 것 (너무 낮은 것은 빼고) · 등급이 높을수록 드물게
   { const rank = (vic.def && vic.def.rank) || 1, lv = Math.max(1, vic.lv || 1);
     if (Math.random() < (od.gear !== undefined ? od.gear : DROP_TUNE.gearBase * Math.min(DROP_TUNE.accRank, rank) * (boss ? DROP_TUNE.gearBoss : 1)) * tm) {
-      const pool = [...GEAR_WPN, ...GEAR_SUIT].filter(g => (g.buy || 0) > 0 && !isBaseGear(g.id) && (g.tier || 1) <= DROP_TUNE.gearMaxTier && (g.lv || 1) <= lv && (g.lv || 1) >= lv - 30);   // 4등급(자광검)까지만 떨어짐 · 뇌전검부터는 상점 · 연구소
+      const pool = [...GEAR_WPN, ...GEAR_SUIT].filter(g => (g.buy || 0) > 0 && !isBaseGear(g.id) && !/_base$/.test(g.id) && (g.tier || 1) <= DROP_TUNE.gearMaxTier && (g.lv || 1) <= lv && (g.lv || 1) >= lv - 30);   // 4등급(자광검)까지만 떨어짐 · 뇌전검부터는 상점 · 연구소
       let tot = 0; for (const g of pool) tot += DROP_TUNE.gearTierW[g.tier || 1] || 0.02;
       if (tot > 0) { let r2 = Math.random() * tot; for (const g of pool) { r2 -= DROP_TUNE.gearTierW[g.tier || 1] || 0.02; if (r2 <= 0) { put({ gear: g.id }); break; } } }
     } }
@@ -6477,12 +6479,14 @@ function sendChat() {
   const ov = document.getElementById('ov'); if (!ov) return;
   const box = document.createElement('div'); box.id = 'chatBox'; box.className = 'pn';
   box.innerHTML = '<div id="chatModes">' + CHAT_MODES.map(([k, nm]) => '<button data-m="' + k + '">' + nm + '</button>').join('') + '</div>'
-    + '<div style="display:flex;gap:6px;margin-top:6px"><input id="chatTo" type="text" maxlength="8" placeholder="닉네임" autocomplete="off" style="width:96px;flex:none"><input id="chatIn" type="text" maxlength="60" autocomplete="off" enterkeyhint="send" style="flex:1;min-width:0"><button id="chatSend" type="button" style="flex:none;padding:0 16px;font:800 14px sans-serif;border-radius:8px;background:#4a3a1a;border:1px solid #ffd27a;color:#fff">보내기</button></div>';   // 10-06 : 휴대폰에서 보내기 단추 (주인님)
+    + '<div style="display:flex;gap:6px;margin-top:6px"><input id="chatTo" type="text" maxlength="8" placeholder="닉네임" autocomplete="off" style="width:96px;flex:none"><textarea id="chatIn" rows="1" wrap="off" maxlength="60" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="send" style="flex:1;min-width:0"></textarea><button id="chatSend" type="button" style="flex:none;padding:0 16px;font:800 14px sans-serif;border-radius:8px;background:#4a3a1a;border:1px solid #ffd27a;color:#fff">보내기</button></div>';   // 10-06 : 휴대폰에서 보내기 단추 (주인님)
   ov.appendChild(box);
   box.querySelectorAll('[data-m]').forEach(el => { el.addEventListener('mousedown', e => e.preventDefault()); el.addEventListener('click', () => { chatSetMode(el.dataset.m); (CHAT.mode === 'whisper' && !document.getElementById('chatTo').value ? document.getElementById('chatTo') : document.getElementById('chatIn')).focus(); }); });
   const inp = box.querySelector('#chatIn'), to = box.querySelector('#chatTo');
   { const sb = box.querySelector('#chatSend'); sb.addEventListener('mousedown', e => e.preventDefault()); sb.addEventListener('pointerdown', e => e.preventDefault()); sb.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); sendChat(); }); }   // 누르는 동안 글 칸 초점이 안 빠지게 (자판이 내려가며 창이 닫히지 않게)
   const cycle = () => { const i = CHAT_MODES.findIndex(v => v[0] === CHAT.mode); chatSetMode(CHAT_MODES[(i + 1) % CHAT_MODES.length][0]); };
+  inp.addEventListener('beforeinput', e => { if (e.inputType === 'insertLineBreak' || e.inputType === 'insertParagraph') { e.preventDefault(); sendChat(); } });   // 10-10 : 한 줄 글 칸 (textarea — 휴대폰 자판 위 열쇠 · 카드 · 위치 줄이 안 뜨게) · 줄바꿈 = 보내기
+  inp.addEventListener('input', () => { if (/[\r\n]/.test(inp.value)) { inp.value = inp.value.replace(/[\r\n]+/g, ' ').trim(); sendChat(); } });
   inp.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); sendChat(); } if (e.key === 'Tab') { e.preventDefault(); cycle(); } if (e.key === 'Escape') { e.preventDefault(); hideChat(); document.getElementById('c').focus(); } });
   to.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' || e.key === 'Tab') { e.preventDefault(); CHAT.to = to.value.trim(); inp.focus(); } if (e.key === 'Escape') { e.preventDefault(); hideChat(); document.getElementById('c').focus(); } });
   const blurChk = () => setTimeout(() => { if (G.chatOpen && !box.contains(document.activeElement)) hideChat(); }, 80);
@@ -14588,7 +14592,7 @@ const HITX = { Track: true, Range: 999, Lo: -30, Hi: 44, Zpad: 20 };
 Object.assign(MOVES_GUN, {
   sk_g1s: { Mot: 'g_shot_h', Spread: { R: 16, n: 8 }, Wind: .10, Live: .05, Rec: .34, Dmg: 0, Fwd: 0, W: 0, Lo: 0, Hi: 0, Push: 0, Lift: 0, Stop: 0, Adv: 0, Col: '#ffe08a' },
   sk_g2a: { Heavy: true, Mot: 'g_shot_h', Cannon: { vx: 30, vy: 14, g: 60, R: 8, n: 2, gap: .16, vx2: 1.22 }, Wind: .22, Live: .05, Rec: .40, Dmg: 0, Fwd: 0, W: 0, Lo: 0, Hi: 0, Push: 0, Lift: 0, Stop: 0, Adv: 0, Col: '#ffb040' },
-  sk_g2b: { Mot: 'g_shot', Counter: { T: 5, R: 70, gap: .06, cut: .9 }, Wind: .04, Live: .04, Rec: .16, Dmg: 0, Fwd: 0, W: 0, Lo: 0, Hi: 0, Push: 0, Lift: 0, Stop: 0, Adv: 0, Col: '#ffe08a' },
+  sk_g2b: { Mot: 'g_shot', Counter: { T: 5, R: 70, gap: .06, cut: .5 }, Wind: .04, Live: .04, Rec: .16, Dmg: 0, Fwd: 0, W: 0, Lo: 0, Hi: 0, Push: 0, Lift: 0, Stop: 0, Adv: 0, Col: '#ffe08a' },
   sk_g2c: { Mot: 'g_low', Disarm: 4, Wind: .10, Live: .05, Rec: .20, Dmg: 0, Fwd: 0, W: 0, Lo: 0, Hi: 0, Push: 0, Lift: 0, Stop: 0, Adv: 0, Col: '#c8d0e0' },
   sk_g2d: { Heavy: true, Mot: 'g_shot_h', ManaShot: { k: 2.5, spd: 72, range: 64, dz: 4.5, R: 5, Rz: 5.5 },   /* 09-29 위 · 아래 판정 넓힘 (2.2 → 4.5 · 터짐 3 → 5.5) */ Wind: 3.0, Live: .06, Rec: .45, Dmg: 0, Fwd: 0, W: 0, Lo: 0, Hi: 0, Push: 0, Lift: 0, Stop: 0, Adv: 0, Col: '#7fd0ff' },
 });
@@ -14600,7 +14604,7 @@ if (FRAME_CFG.gun) Object.assign(FRAME_CFG.gun.seq, { sk_g1s: ['h1', 'h1'], sk_g
     L.push(Object.assign(sn, { tier: 2, lv: L2 })); } }
 SKILLS.gun.push(
   { move: 'sk_g2a', name: '대포', adv: 'mugwan', tier: 2, lv: L2, cost: 60, cool: 8, desc: '어깨의 대포를 퉁퉁 빠르게 두 방 · 포탄 두 개가 포물선으로 날아가 (두 번째는 조금 더 멀리) 각각 둘레 8칸을 크게 터뜨림 · 쏠 때마다 반동으로 뒤로 밀림' },
-  { move: 'sk_g2b', name: '양사', adv: 'mugwan', tier: 2, lv: L2, cost: 40, cool: 8,  desc: '5초 동안 누가 때리면 그 공격 피해 −90% · 밀리지 않고 때린 쪽으로 곧바로 총을 쏨 (맞는 만큼 몇 번이든)' },
+  { move: 'sk_g2b', name: '양사', adv: 'mugwan', tier: 2, lv: L2, cost: 40, cool: 12, desc: '5초 동안 누가 때리면 그 공격 피해 −50% · 밀리지 않고 때린 쪽으로 곧바로 총을 쏨 (맞는 만큼 몇 번이든)' },
   { move: 'sk_g2c', name: '무장해제', adv: 'mugwan', tier: 2, lv: L2, cost: 30, cool: 25, desc: '총을 내던지고 방탄복 · 4초 동안 받는 모든 피해 −90% · 그동안 공격 · 스킬을 아무것도 못 씀' },
   { move: 'sk_g2d', name: '마력탄', adv: 'elite', tier: 2, lv: L2, cost: 20, cool: 20, desc: '3초 동안 총에 기를 모아 마력을 모두 써서 쏨 · 물리 피해 = 쓴 마력 ×2.5 · 처음 맞은 적 자리에서 터짐' });
 
@@ -14784,7 +14788,7 @@ const CTR_KEEP = ['x', 'y', 'z', 'vx', 'vy', 'vz', 'stun', 'float', 'floatSlow',
 { const ah1 = applyHit; applyHit = function (att, vic, spec, o) {
     const on = vic && vic.ctrT > 0 && !vic.dead && att && att !== vic && att.team !== vic.team && spec && (spec.Dmg || 0) > 0 && !spec._ctr;
     if (!on) return ah1(att, vic, spec, o);
-    const C = vic.ctrC || { cut: .9, gap: .06 }, d0 = vic.dmgTaken, keep = {}; for (const k of CTR_KEEP) keep[k] = vic[k]; const tk = vic.tasks.slice();
+    const C = vic.ctrC || { cut: .5, gap: .06 }, d0 = vic.dmgTaken, keep = {}; for (const k of CTR_KEEP) keep[k] = vic[k]; const tk = vic.tasks.slice();
     vic.dmgTaken = (d0 || 1) * (1 - C.cut);
     let r; try { r = ah1(att, vic, spec, o); } finally { vic.dmgTaken = d0; }
     if (!r) return r;
@@ -15157,7 +15161,7 @@ function drawJet(j) {                                                  // 제트
 
 // ── 탄풍 (투신) : 3초 빙글빙글 사방 난사 · 발 수 = 20 + 민첩 × 0.2 (10-01 주인님 : 0 → 20 · 100 → 40 · 200 → 60 · 1000 → 220) ──
 const SPIN_SHOT = { Sfx: 'shot', Spinning: true, RunFire: true, NoStop: true, Stun: .16, Dmg: 30, StrK: 0.3, StatRef: 62,   // 10-01 주인님 : 한 발 = (30 + (힘 × 0.3 + 공격력) × 62/60) × 피해 % × 레벨 보정
-  Fwd: 3, W: 2.4, Lo: -2, Hi: 6, Push: 5, Lift: 0, Stop: .02, Col: '#ffe08a', Speed: 300, Range: 46, _k: 'sk_g3e', _sk: true };
+  Fwd: 3, W: 2.4, Lo: -2, Hi: 6, Push: 5, Lift: 9, NoCap: true, Stop: .02, Col: '#ffe08a', Speed: 300, Range: 46, _k: 'sk_g3e', _sk: true };
 function spinShots(f, P) { const src = f.owner || f, agi = (src.st && src.st.agi) || 0; return Math.max(1, Math.round((P.n0 || 20) + agi * (P.perAgi !== undefined ? P.perAgi : 0.2))); }
 function spinGo(f, s) { const P = s.Spin; f.spinT = P.T; f._spin = P; f._spinAcc = 0; f._spinN = 0; f._spinFace = f.face || 1; f._spinGap = P.T / spinShots(f, P);
   const sc = f.scale || 1;
@@ -15177,7 +15181,7 @@ function spinStep(f, dt) {
     if (SANIM.ts_blast && !(now - (f._spinBl || -1) < .08)) { f._spinBl = now; stamp('ts_blast', { follow: f, oy: 4.8 * (f.scale || 1), w: 13 * (f.scale || 1), life: .2, fin: .01, fout: .6 }); }   // 앞뒤 동시 불꽃
     if (SANIM.ts_casing && !(now - (f._spinCs || -1) < .3)) { f._spinCs = now; stamp('ts_casing', { follow: f, oy: 5.5 * (f.scale || 1), w: 10 * (f.scale || 1), life: .7, add: false, a: .9, fin: .01, fout: .6 }); }   // 탄피 · 연기
     if (!(now - (f._spinSh || -1) < .16)) { f._spinSh = now; shake(.35); } }
-  if (f.spinT <= 0) { f.spinT = 0; f.face = f._spinFace; for (const k of ['_spinFx', '_spinFx2']) if (f[k]) { f[k].t = f[k].life; f[k] = null; } f.mot = null; }
+  if (f.spinT <= 0) { f.spinT = 0; f._spinEnd = G.time; f.face = f._spinFace; for (const k of ['_spinFx', '_spinFx2']) if (f[k]) { f[k].t = f[k].life; f[k] = null; } f.mot = null; }
 }
 
 // ── 총알 따라 보기 : 필중 금빛 궤적 · 맞으면 금빛 터짐 / 색적 중 내 총알 명중 · 빗나감 (레이더에 표시) ──
@@ -15204,6 +15208,14 @@ const RADAR_EV = [];
       if (Math.random() < .5) part({ x: s.x - s.dx * .6, y: s.y, z: s.z, vx: rnd(-3, 3), vy: rnd(-2, 4), life: rnd(.25, .5), size: rnd(.1, .2), col: Math.random() < .5 ? '#ffe08a' : '#fff6d8', kind: 'dot', g: 0 }); }
     ctx.restore(); }; }
 }
+
+// 10-09 주인님 : 탄풍으로 몇 발 쐈는지 머리 위에 (끝나고 1초쯤 보였다가 사라짐)
+{ const dfS = drawFighter; drawFighter = function (f, opt) { const r = dfS(f, opt);
+    if (f && !(opt && opt.ghost) && f._spinN > 0 && (f.spinT > 0 || (f._spinEnd && G.time - f._spinEnd < 1.2))) {
+      const sc = f.scale || 1, q = scr(f.x, f.y + (f.ctrT > 0 ? 14 : 11.8) * sc, f.z), a = f.spinT > 0 ? 1 : clamp(1 - (G.time - f._spinEnd - .6) / .6, 0, 1), t = f._spinN + '발';
+      ctx.save(); ctx.globalAlpha = a; ctx.translate(q.x, q.y); ctx.font = `900 ${f.spinT > 0 ? 16 : 18}px ${UIF}`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.lineWidth = 4; ctx.strokeStyle = 'rgba(40,20,0,.85)'; ctx.strokeText(t, 0, 0); ctx.fillStyle = '#ffe08a'; ctx.fillText(t, 0, 0); ctx.restore(); }
+    return r; }; }
 </script>
 <script src="그림/수련장2.js?v=f023c2af5b" onload="__ld(529151)" onerror="__ld(529151,1)"></script>
 <script>
@@ -16208,9 +16220,9 @@ Object.assign(window, { TH_SK, thTargets });
 <script src="그림/새틀마여1.js?v=4346e64a94" onload="__ld(7135661)" onerror="__ld(7135661,1)"></script>
 <script src="그림/새틀마여2.js?v=ee40b7aa48" onload="__ld(3158504)" onerror="__ld(3158504,1)"></script>
 <script src="그림/새옷아이콘.js?v=3b8c2514cf" onload="__ld(688168)" onerror="__ld(688168,1)"></script>
-<script src="그림/치장아이콘.js?v=e7bc10139f" onload="__ld(1276595)" onerror="__ld(1276595,1)"></script>
+<script src="그림/치장아이콘.js?v=340889eb26" onload="__ld(1278099)" onerror="__ld(1278099,1)"></script>
 <script src="그림/치장날개.js?v=3872b600db" onload="__ld(656907)" onerror="__ld(656907,1)"></script>
-<script src="그림/치장얼굴.js?v=dcd4a8695f" onload="__ld(500996)" onerror="__ld(500996,1)"></script>
+<script src="그림/치장얼굴.js?v=91861ee7c9" onload="__ld(510596)" onerror="__ld(510596,1)"></script>
 <script src="그림/귀걸이.js?v=80812eadfc" onload="__ld(76311)" onerror="__ld(76311,1)"></script>
 <script src="그림/귀걸이2.js?v=b63c2d0caf" onload="__ld(151870)" onerror="__ld(151870,1)"></script>
 <script src="그림/볼눈장식.js?v=005bda43eb" onload="__ld(196282)" onerror="__ld(196282,1)"></script>
@@ -16279,11 +16291,13 @@ function wovSet(S0, W0, wid) {
   const job = S0.job || (WPN_BY[wid] && WPN_BY[wid].job) || '';
   if ((job === 'sword' || job === 'tao') && F.fr.idle && F.fr.walk && !F.fr.walk2 && S0.frames.idle && S0.frames.idle.msrc) {   // 10-04 : 걷는 동안 «서기 컷» 은 무기 없이 (칼 · 부채가 앞뒤로 왔다 갔다 하지 않게)
     const q = F.fr.idle, c = mkCanvas(q.w, q.h); c.complete = false; c.naturalWidth = 0; F.fr.walk2 = Object.assign({}, q, { img: c, _nw: true }); }
+  if (job === 'sword' && F.fr.walk && S0.frames.walk && S0.frames.walk.msrc) { const q = F.fr.walk, c = mkCanvas(q.w, q.h); c.complete = false; c.naturalWidth = 0; F.fr.walkNW = Object.assign({}, q, { img: c, _nw: true }); }   // 10-10 주인님 : 걸을 때는 칼을 손에 쥐지 않고 칼집에
   return F;
 }
 // 무기 없는 서기 컷 : 옷 컷(무기 자리는 비어 있음) + 몸 안쪽에 갇힌 무기 자리 (주먹 속 손잡이 · 몸 앞을 지나던 칼) 는 둘레 빛깔로 메움
-function nwBuild(F, S0) {
-  const q = F.fr.walk2, f = S0.frames.idle; if (!q || !f) return;
+function nwBuild(F, S0) { nwOne(F.fr.walk2, S0.frames.idle); if (F.fr.walkNW) nwOne(F.fr.walkNW, S0.frames.walk); }   // 10-09 : 걷는 컷도 무기 없이 (검사 : 칼집을 참)
+function nwOne(q, f) {
+  if (!q || !f) return;
   const c = q.img, g = c.getContext('2d', { willReadFrequently: true }), W_ = q.w, H_ = q.h, px = q._px || 0, py = q._py || 0;
   g.clearRect(0, 0, W_, H_); g.drawImage(im(f.src), px, py);
   try {
@@ -16316,6 +16330,15 @@ function nwBuild(F, S0) {
   } catch (e) { }
   c.complete = true; c.naturalWidth = W_;
 }
+// 10-09 주인님 : 옷을 입으면 발이 떠 보임 (컷의 발 기준점이 실제 발바닥보다 아래) → 다 그린 뒤 서기 컷의 발바닥을 재서 모든 컷을 그만큼 내림 (뜬 것만 · 3 ~ 30px)
+function wovGround(F) {
+  if (!F || F._gnd || window.WOV_GROUND === false) return; F._gnd = true;
+  const q = (F.fr.walk2 && F.fr.walk2._nw && F.fr.walk2.img && F.fr.walk2.img.complete) ? F.fr.walk2 : F.fr.idle;   // 무기 없는 서기 컷이 있으면 그것으로 (칼끝이 발 밑으로 내려가도 안 헷갈리게)
+  if (!q || !q.img || !q.img.getContext) return; let d; try { d = q.img.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, q.w, q.h).data; } catch (e) { return; }
+  let b = -1; for (let y = q.h - 1; y >= 0 && b < 0; y--) for (let x = 0; x < q.w; x++) if (d[(y * q.w + x) * 4 + 3] > 80) { b = y; break; }
+  if (b < 0) return; const gap = q.ay - (b + 1); F._gap = gap;
+  if (gap >= 3 && gap <= 30) for (const n in F.fr) F.fr[n].ay -= gap; }
+window.wovGround = wovGround;
 function wovBuild(F) {
   if (F._built) return true; const { S0, W0 } = F._wov, wi = im(W0.src);
   for (const n in S0.frames) { const f = S0.frames[n]; im(f.src); if (f.msrc) im(f.msrc); if (f.asrc) im(f.asrc); }   // 한꺼번에 불러옴 (하나씩 기다리면 늦게 입혀짐)
@@ -16335,7 +16358,7 @@ function wovBuild(F) {
     }
     c.complete = true; c.naturalWidth = f.w;
   }
-  nwBuild(F, S0); F._built = true; return true;
+  nwBuild(F, S0); F._built = true; wovGround(F); return true;
 }
 // 검 : 컷마다 검 그림을 행렬로 옮겨 그림 — 칼자리 + 둘레 빈 곳(asrc)까지만 · 넘친 곳 둘레엔 흰 테
 const RING = []; for (let a = 0; a < 16; a++) RING.push([Math.round(Math.cos(a * Math.PI / 8) * 3), Math.round(Math.sin(a * Math.PI / 8) * 3)]);
@@ -16361,7 +16384,7 @@ function bladeBuild(F, S0, W0, wi) {
     g.drawImage(w, 0, 0); fr._wl = w;                                                         // 무기 층 (치장머리를 얹은 뒤 다시 위에 그림 · 10-03)
     c.complete = true; c.naturalWidth = FW;
   }
-  nwBuild(F, S0); F._built = true; return true;
+  nwBuild(F, S0); F._built = true; wovGround(F); return true;
 }
 window.wovBuild = wovBuild; window.wovKey = wovKey; window.wovSet = wovSet;   // 치장템(p7w_cz.js)도 씀
 // 옷 + 무기 → 컷 세트 이름 : 붙일 수 있으면 붙인 세트 · 아니면 원래대로 (없으면 그 옷 + 기본 무기 · 그것도 없으면 직업 기본)
@@ -16395,12 +16418,14 @@ window.wovSex = wovSex;
     if (F && F._h45) { const { wk, kf } = F._h45, F0 = framesReady(kf); if (!F0) return null;
       const W = FRAMES_IMG[wk]; if (!W._built) wovBuild(W); const wi = W.fr.idle; if (!W._built || !wi || !wi.img.complete) return F0;   // 45도 컷이 아직이면 원래 그대로
       if (F._src !== F0) { const r = W.s / F0.s, sc = q => ({ img: q.img, w: q.w * r, h: q.h * r, ax: q.ax * r, ay: q.ay * r }); F.s = F0.s;
-        F.fr = Object.assign({}, F0.fr, { idle45: sc(wi) }); if (W.fr.walk) F.fr.walk45 = sc(W.fr.walk); F._src = F0; F._nmOf = null; }
+        F.fr = Object.assign({}, F0.fr, { idle45: sc(wi) }); if (W.fr.walk) F.fr.walk45 = sc(W.fr.walkNW || W.fr.walk); if (W.fr.walk2 && W.fr.walk2._nw) F.fr.idle45nw = sc(W.fr.walk2); F._src = F0; F._nmOf = null; }
       return F; }
     return fr0(job); }; }
 { const pf0 = pickFrame; pickFrame = function (f, F) { const r = pf0(f, F), w2 = F && F.fr && F.fr.walk2; if (!w2 || !w2._nw) return r;   // 10-04 : 멈추고 0.1초 뒤에 무기가 보임
     const now = G.real || 0; if (f.walking) { f._walkAt = now; return r; }
     if (r === F.fr.idle && f._walkAt != null && now - f._walkAt < 0.1) return w2; return r; }; }
+{ const pfN = pickFrame; pickFrame = function (f, F) { const r = pfN(f, F), wn = F && F.fr && F.fr.walkNW;   // 10-10 : 검사가 걸을 때 = 칼 없는 걷기 컷 (칼은 칼집에 · 칼집은 따로 그림)
+    return (wn && r === F.fr.walk && wn.img && wn.img.complete) ? wn : r; }; }
 const idleNow = f => !f.dead && !(f.getUp > 0) && !(f.downT > 0) && !f.grabbed && !(f.frozenT > 0) && !f.backRoll && !f.rollZ && !f.runFire && !f.atk
   && !(f.stun > 0) && !(f.hurtT > 0) && !f.hitAir && !f.guarding && !(f.dashT > 0) && f.onGround && !f.walking;
 // 45도 (10-01) : 마을에서만 — 걷다가 공격할 때 휙 도는 느낌이 없게 사냥터 · 차원 · 대결장 · 수라장은 늘 옆모습
@@ -16416,13 +16441,13 @@ let PF = null;
     let out = r;
     if (rdy(wq) && rdy(q)) {                                                                  // 45도로 걷기까지
       if (r === F.fr.idle && idleNow(f)) out = q;
-      else if (moveNow(f) && (r === F.fr.walk || r === F.fr.walk2 || r === F.fr.idle)) out = r === F.fr.walk ? wq : q;
+      else if (moveNow(f) && (r === F.fr.walk || r === F.fr.walkNW || r === F.fr.walk2 || r === F.fr.idle)) out = (r === F.fr.walk || r === F.fr.walkNW) ? wq : (F.fr.walkNW && rdy(F.fr.idle45nw) ? F.fr.idle45nw : q);   // 10-10 : 검사는 걸을 때 45도 서기 컷도 무기 없이
     } else {                                                                                   // 서기만 45도 : 멈춘 뒤 잠깐 기다렸다가
       const now = G.real || 0, still = r === F.fr.idle && idleNow(f);
       if (!still) f._still0 = null; else if (f._still0 == null) f._still0 = now;
       if (still && now - f._still0 >= STILL45 && rdy(q)) out = q;
     }
-    const is = out === q || out === wq;
+    const is = out === q || out === wq || out === F.fr.idle45nw;
     if (f._is45 !== undefined && f._is45 !== is) f._turnT = G.real || 0; f._is45 = is; PF = { f, out }; return out; }; }
 { const df0 = drawFrame; drawFrame = function (fr, F) { const f = PF && PF.out === fr ? PF.f : null, t = f && f._turnT != null ? (G.real || 0) - f._turnT : 1;
     if (t >= 0 && t < 0.1) { ctx.save(); ctx.scale(0.55 + 0.45 * t / 0.1, 1); df0(fr, F); ctx.restore(); } else df0(fr, F); }; }
@@ -16434,6 +16459,8 @@ if (WV && WV.sicon) { const add = () => { if (typeof SUIT_ICON_IMG !== 'undefine
 // 설정을 바꾸면 지금 캐릭터 컷을 다시 고름
 window.wovRefresh = function () { const p = G.player; if (p && p.suit2 && p.wpn) p.frames = suitFrames(p.suit2, p.wpn.id, p.sex); };
 }
+
+// 10-10 주인님 : 검사는 걸을 때 무기를 아무것도 안 보이게 (맨손으로 걸음) — 칼집 · 허리에 찬 칼 모두 그리지 않음 (걷기 컷 = walkNW · walk2 = 무기 지운 컷)
 </script>
 <script>
 // ════════════════════════════════════════════════════════════════
@@ -16882,6 +16909,7 @@ function touchLayout() {
   const p = G.player; const peace = !!(G.map && G.map.peace); const by = VH - 66, ty = VH - 182; const L = [];
   if (peace) {
     L.push({ k: 'z', t: 'Z', sub: '말 걸기', x: VW - 100, y: ty, r: 54 });
+    { const nr = !!(p && G.objs && G.objs.some(o => o.kind === 'drop' && o.t > 0.35 && Math.abs(o.x - p.x) <= T.DROP_R && Math.abs(o.z - p.z) <= 6)); L.push({ k: 'v', t: '줍기', x: VW - 316, y: by, r: 45, dim: !nr }); }   // 10-09 : 마을에서도 줍기
     L.push({ k: 'dash', t: '대시', x: VW - 208, y: by, r: 45 }); L.push({ k: 'jump', t: '점프', x: VW - 100, y: by, r: 45 });   // 사냥터와 같게 : 왼쪽 대시 · 오른쪽 점프
   } else if (touchFieldNew()) {
     // 10-06 사냥터 (side) : 위 줄 막기 · Z · X / 아래 줄 줍기 · 대시 · 점프 · 스킬 한 줄은 줍기 바로 왼쪽 (touchSkLay)
@@ -18670,6 +18698,7 @@ function openCharMgr() { { const ch = curChar(); if (ch && ch.kp3Reset) { delete
 function advTestGo(n, diffK) {                                   // 무인각 «승급 시험 보기» : 바로 시험 대결 (난전 · 1 : 1) · 이기면 통과 · 끝나면 마을로
   const ch = curChar(); if (!ch) return; ch.q = ch.q || {}; if (!(ch.q['adv' + n] >= 1)) ch.q['adv' + n] = 1; saveNow(); AU.play('go');
   hidePanels(); M.advUpOk = 0; M.from = 'town'; if (G.map) G.savedStage = G.stage; startDuel(1, diffK, 'arena', 'melee');
+  G.advTrial = { n, diffK, st: G.stage };                         // 10-09 : 지면 «다시 하기» 로 바로 같은 승급 시험 (대결장 AI 연습으로 가지 않게)
 }
 function openAdvSel() { M.advPick = null; M.advOk = false; M.back2 = G.state; G.state = 'advsel'; }
 function grantRewards() {
@@ -19583,7 +19612,8 @@ function bagPer() { return BAGUI.cols * BAGUI.rows; }
 function bagList(ch) {
   const out = [], own = ch.own || {};
   const dup = ch.dup || {};
-  const add = (t, list) => { for (const g of list) if (own[g.id]) { out.push({ t, id: g.id, g, k: -1 }); (dup[g.id] || []).forEach((v, k) => out.push({ t, id: g.id, g, k })); } };
+  const add = (t, list) => { for (const g of list) if (own[g.id] && !isBaseGear(g.id)) {   // 10-09 : 기본 무기 · 기본옷은 가방에 안 보임 (버릴 수도 없음)
+ out.push({ t, id: g.id, g, k: -1 }); (dup[g.id] || []).forEach((v, k) => out.push({ t, id: g.id, g, k })); } };
   add('wpn2', GEAR_WPN); add('suit2', GEAR_SUIT); add('ring', GEAR_RING); add('neck', GEAR_NECK); add('charm', GEAR_CHARM); add('head', GEAR_HEAD);   // 투구 (10-04)
   for (const pt of POTIONS) { const n = potCount(ch, pt.id); if (n > 0) out.push({ t: 'pot', id: pt.id, g: pt, n }); }
   for (const e of ENH_KINDS) { const n = stoneCount(ch, e.id); if (n > 0) out.push({ t: 'stone', id: e.id, g: e, n }); }
@@ -20518,6 +20548,7 @@ function toLobby() { leaveToHub(); }
 function restartSame() {
   if (G.map) { bankKillGold(); respawnMap('town'); return; }
   bankKillGold();
+  if (G.duel && G.advTrial && G.advTrial.st === G.stage) { const t = G.advTrial, ch = curChar(); if (ch && ch.q && ch.q['adv' + t.n] === 1) { G.duel = false; advTestGo(t.n, t.diffK); return; } }
   if (G.duel) { toDuelSel(); return; }                       // 대결은 다시 고르고 시작 (그냥 다시 돌리면 상대가 안 나왔다)
   if (G.training) startTraining(); else startStage(G.stage.tier, G.stage.idx);
 }
@@ -21377,6 +21408,7 @@ const CZ_LIST = [
 for (const [id, cat, name] of CZ_LIST) if (!ITEMS.some(i => i.id === id)) ITEMS.push({ id, cat, name, price: 0, cz: true });
 const CA = () => window.CZ_ART || { geo: {}, head: {}, icon: {} };
 const WV = window.WOV_ART;
+const CZ_FADJ = { czf_ninja: { m: [0.12, 0], f: [0.28, -0.03] }, cze_cuffs: { m: [0.5, 0.45], f: [0.5, 0.45] }, cze_cuffg: { m: [0.45, 0.4], f: [0.45, 0.4] } };   // 10-09 주인님 : 복면이 왼쪽 아래로 · 귀찌가 너무 위 (얼굴 높이 단위로 옮김)
 const IMG = {}; const im = src => { let i = IMG[src]; if (!i) { i = IMG[src] = new Image(); i.src = src; } return i; };
 const ok = i => i.complete && i.naturalWidth > 0;
 // 같이 못 입는 것 : 치장한벌옷 ↔ 치장옷 · 치장머리 · 치장모자 / 치장머리 ↔ 치장모자 — 방금 입은 칸(cat)만 남기고 나머지를 벗김
@@ -21447,7 +21479,8 @@ function czFrames(su, wid, job, L, sx) {
   if (L.hair && L.hairDye && heads[0] && heads[0].indexOf(L.hair.id + '@') === 0) heads[0] += '~d:' + L.hairDye;   // 염색약 (10-06)
   const fv = (CA().fview && (CA().fview[jk] || CA().fview[job])) || 'q', faOf = g => g && CA().face && CA().face[g.id] && (CA().face[g.id][fv] || CA().face[g.id].q);
   const fpj = CA().fpose && CA().fpose[jk], lz = L.lens && CZ_LENS[L.lens.id];
-  const fp = fpj ? (lz ? [{ lens: lz, p: fpj }] : []).concat([L.face, L.ear].filter(g => faOf(g)).map(g => ({ a: faOf(g), p: fpj }))) : [];   // 렌즈 → 얼굴 · 귀걸이 (10-04) : 앞쪽 눈에 맞춤
+  const fadj = (g, a) => { const d = CZ_FADJ[g.id]; if (!d) return a; const v = d[/@f$/.test(jk) ? 'f' : 'm'] || d.m; return Object.assign({}, a, { ox: a.ox + v[0], oy: a.oy + v[1] }); };
+  const fp = fpj ? (lz ? [{ lens: lz, p: fpj }] : []).concat([L.face, L.ear].filter(g => faOf(g)).map(g => ({ a: fadj(g, faOf(g)), p: fpj }))) : [];   // 렌즈 → 얼굴 · 귀걸이 (10-04) : 앞쪽 눈에 맞춤
   if ((!heads.length && !fp.length) || !CA().geo[sk]) return kb;
   const br = L.hair && CA().braid && CA().braid[sk] ? CA().braid[sk].frames : null;          // (옛 틀) 땋은 머리 · 꽁지머리를 지우고 메움
   const hg = CA().hg && CA().hg[sk] ? CA().hg[sk].frames : null;                            // (옛 틀) 뿔 · 왕관 · 후광처럼 머리 밖으로 튀어나온 것은 지움
@@ -21477,7 +21510,7 @@ function czAdjG(sk, n, g, job) {
 function czSet(Fb, sk, heads, br, hg, fp, job) {
   const jb = job || (heads[0] || '').split('@')[1] || '', G0 = czGeoFix(sk, CA().geo[sk], jb), F = { s: Fb.s, fr: {}, _cz: { Fb, heads }, _built: false };
   for (const n in Fb.fr) {
-    const nn = n === 'walk2' && Fb.fr[n]._nw ? 'idle' : n;                                    // 무기 없는 서기 컷 (10-04) : 머리 · 얼굴 자리는 서기 컷 그대로
+    const nn = n === 'walk2' && Fb.fr[n]._nw ? 'idle' : n === 'walkNW' ? 'walk' : n;   // walkNW : 칼 없는 걷기 컷 (10-09) = 걷기 자리                                    // 무기 없는 서기 컷 (10-04) : 머리 · 얼굴 자리는 서기 컷 그대로
     const fb = Fb.fr[n], g = czAdjG(sk, nn, G0 && G0[nn], jb), pl = [], PX = fb._px || 0, PY = fb._py || 0; let x0 = 0, y0 = 0, x1 = fb.w, y1 = fb.h;   // PX · PY : 무기를 키워 넓힌 둘레
     const gf = g && hg && hg[nn];
     if (gf) { const [bx, by, kB] = g, sc = kB / gf.k; pl.push({ hf: gf, braid: true, dx: (gf.x0 - bx) * kB + PX, dy: (gf.y0 - by) * kB + PY, dw: gf.w * sc, dh: gf.h * sc, er: gf.msk, src: null }); }   // 지우기만
@@ -21594,7 +21627,7 @@ function czBuild(F) {
     const wl = Fb.fr[n] && Fb.fr[n]._wl; if (wl && czNewSk(F._sk) && f._pl.some(p => p.src && !p.face)) { g.globalCompositeOperation = 'source-over'; g.drawImage(wl, f._ox, f._oy); }   // 얼굴 앞 무기는 다시 위로 (새 치장머리 조각은 무기 자리를 메워 둠)
     c.complete = true; c.naturalWidth = f.w;
   }
-  F._built = true; return true;
+  F._built = true; if (typeof wovGround === 'function') wovGround(F); return true;
 }
 if (WV) for (const k in CA().head) for (const n in CA().head[k].frames) { const f = CA().head[k].frames[n]; im(f.src); im(f.msk); if (f.hat) im(f.hat); if (f.hup) im(f.hup); }
 { const fr0 = framesReady; framesReady = function (job) {
@@ -21614,7 +21647,7 @@ function czApply(p, job, ch) {
 { const r0 = window.wovRefresh; window.wovRefresh = function () { if (r0) r0(); const p = G.player, ch = (p && p._lookCh) || (typeof curChar === 'function' && curChar()); if (p && ch) czApply(p, p.job || ch.job, ch); }; }   // 수련장 기본 캐릭터는 그 모습 그대로 (10-05)
 // ── 아이콘 · 글 ──
 // ── 치장날개 (09-30) : 등 뒤 · 컷마다 얼굴 자리(fpose)에서 등 자리를 셈 · 걸으면 · 뛰면 더 펄럭임 · 구를 때는 안 보임 ──
-function czWingAt(F, n) { if (n === 'walk2') n = 'idle';
+function czWingAt(F, n) { if (n === 'walk2') n = 'idle'; if (n === 'walkNW') n = 'walk';
   const C = F._czw || (F._czw = {}); if (C[n] !== undefined) return C[n];
   const sk = F._sk, job = F._job, fpo = CA().fpose && CA().fpose[job], geo = CA().geo && CA().geo[sk];
   if (!sk || !fpo || !geo) return null;                                                      // 치장 그림이 아직 안 왔으면 «없음» 으로 굳히지 않음 (10-01 : 처음 서 있던 컷만 날개가 안 보이던 것)
@@ -21809,7 +21842,10 @@ function czAvail(ch, id) { const g = czItem(id); return czCount(ch, id) - (g && 
 function czAddOne(ch, id) { ch.items = ch.items || []; if (!ch.items.includes(id)) { ch.items.push(id); return; } ch.czN = ch.czN || {}; ch.czN[id] = (ch.czN[id] || 1) + 1; }
 function czTakeOne(ch, id) { if (ch.czN && ch.czN[id] > 1) { if (--ch.czN[id] <= 1) delete ch.czN[id]; return; } const i = (ch.items || []).indexOf(id); if (i >= 0) ch.items.splice(i, 1); }
 Object.assign(window, { czCount, czAvail, czAddOne, czTakeOne });
-function czBuy(ch, buy, cost) {                                                           // 사기만 함 · 입는 것은 장비 창 · 가진 것도 또 살 수 있음 (가진 수 +1) (09-30)
+const CZ_NOSALE = new Set(['czf_blush', 'czf_patch', 'czf_3d', 'czf_gum', 'czf_mustache', 'czf_santa', 'czf_cat', 'czf_stareye', 'czf_warpaint', 'czf_rose', 'cze_stud', 'czl_blue', 'czl_sky', 'czl_green', 'czl_gold', 'czl_gray', 'czl_pink']);   // 10-09 주인님 : 상점에서 뺌 (가진 사람은 그대로)
+window.CZ_NOSALE = CZ_NOSALE;
+function czBuy(ch, buy, cost) {
+  buy = buy.filter(g => !CZ_NOSALE.has(g.id)); cost = buy.reduce((s, g) => s + czPrice(g), 0);                                                           // 사기만 함 · 입는 것은 장비 창 · 가진 것도 또 살 수 있음 (가진 수 +1) (09-30)
   if (buy.some(g => CZ_LIMITED[g.id] && ltdState(g.id) !== 'now')) { const lim = buy.filter(g => CZ_LIMITED[g.id] && ltdState(g.id) !== 'now'); buy = buy.filter(g => !lim.includes(g)); cost = buy.reduce((s, g) => s + czPrice(g), 0); mmsg(lim.map(g => g.name).join(' · ') + ' : ' + LTD_TXT[ltdState(lim[0].id)] + ' — 지금은 살 수 없습니다'); if (!buy.length) { AU.play('hit', 0.5); return; } }
   if (!buy.length) return;
   if (cost > (ch.gold || 0)) { mmsg('골드가 부족합니다'); AU.play('hit', 0.5); return; }
@@ -21829,7 +21865,7 @@ function drawCzShop() {
   const worn0 = () => mine ? czWorn(ch) : {};
   const setSx = sx => { if (sx === M.czSex) return; AU.play('select'); M.czSex = sx; M.czTry = sx === mySx ? czWorn(ch) : {}; M.czPick = {}; M.czSel = {}; M.czPage = 0; };
   if (!czReady(ch.job, SX)) czLoad(ch.job, SX);
-  const list = M.czTab === 'dye' ? [] : ITEMS.filter(g => g.cz && g.cat === M.czTab && czHas(g, ch.job, SX)).sort((a, b) => czPrice(a) - czPrice(b));   // 싼 것부터
+  const list = M.czTab === 'dye' ? [] : ITEMS.filter(g => g.cz && g.cat === M.czTab && !CZ_NOSALE.has(g.id) && czHas(g, ch.job, SX)).sort((a, b) => czPrice(a) - czPrice(b));   // 싼 것부터
   const gx = 40, gy = tabs ? 132 : 96, cw = 184, chh = 104, gap = 8, cols = 4, rows = 4, per = cols * rows;
   const pages = Math.max(1, Math.ceil(list.length / per)); M.czPage = clamp(M.czPage || 0, 0, pages - 1);
   list.slice(M.czPage * per, M.czPage * per + per).forEach((g, i) => {
@@ -25503,7 +25539,7 @@ function qGoal(q) { return q.kind === 'kill' ? `${qMob(q)} ${q.n}마리 처치` 
 const NPCQ = { list: [], made: false };
 function npcCz(job, seed) {
   let s = seed * 9301 + 49297; const r = () => (s = (s * 16807) % 2147483647) / 2147483647, pk = a => a[Math.floor(r() * a.length)];
-  const of = c => CZ_LIST.filter(([id, cc]) => cc === c).map(([id]) => id).filter(id => czHas(czItem(id), job));
+  const of = c => CZ_LIST.filter(([id, cc]) => cc === c).map(([id]) => id).filter(id => !(window.CZ_NOSALE && CZ_NOSALE.has(id)) && czHas(czItem(id), job));
   const cz = {}, add = (c, p) => { if (r() < p) { const L = of(c); if (L.length) cz[c] = pk(L); } };
   if (r() < 0.2) add('czs', 1); else { add('czb', 0.75); add('czh', 0.75); if (!cz.czh) add('czc', 0.6); }
   add('czf', 0.35); add('czg', 0.4); return cz;
@@ -27949,8 +27985,15 @@ body.rtype #boardBox textarea{height:110px!important}`;
 document.head.appendChild(st);
 const isTxt = el => !!(el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && /^(text|search|number|)$/i.test(el.type || ''))));
 const portrait = () => window.innerHeight > window.innerWidth * 1.1 || ROT.on || ROT.typing;
-document.addEventListener('focusin', e => { if (!COARSE || !isTxt(e.target) || ROT.typing || !portrait()) return; ROT.typing = true; document.body.classList.add('rtype'); fit(); });
-document.addEventListener('focusout', () => { setTimeout(() => { if (!ROT.typing || isTxt(document.activeElement)) return; ROT.typing = false; document.body.classList.remove('rtype'); fit(); }, 180); });
+// 10-10 주인님 : 세로로 채팅할 때 글 칸을 자판 바로 위 (보이는 화면 맨 아래) 로 — 게임 화면 가운데를 가리지 않게
+const rtPos = () => { const cb = document.getElementById('chatBox'); if (!cb) return;
+  if (!document.body.classList.contains('rtype') || !cb.classList.contains('show')) { cb.style.removeProperty('top'); return; }
+  const vv = window.visualViewport, vh = vv ? vv.height : window.innerHeight, vt = vv ? vv.offsetTop : 0, par = cb.offsetParent, pt = par ? par.getBoundingClientRect().top : 0;
+  const top = Math.max(8, Math.round(vt + vh - cb.offsetHeight - 6 - pt)); cb.style.setProperty('top', top + 'px', 'important'); };
+window.rtPos = rtPos;
+if (window.visualViewport) { visualViewport.addEventListener('resize', rtPos); visualViewport.addEventListener('scroll', rtPos); }
+document.addEventListener('focusin', e => { if (!COARSE || !isTxt(e.target) || ROT.typing || !portrait()) { rtPos(); return; } ROT.typing = true; document.body.classList.add('rtype'); fit(); for (const t of [0, 120, 350, 700]) setTimeout(rtPos, t); });
+document.addEventListener('focusout', () => { setTimeout(() => { if (!ROT.typing || isTxt(document.activeElement)) return; ROT.typing = false; document.body.classList.remove('rtype'); rtPos(); fit(); }, 180); });
 }
 </script>
 <script>
@@ -28047,11 +28090,12 @@ const DYE_PRICE = 50000;                                                     // 
 const DYE_BY = {}; for (const d of DYES) DYE_BY[d.id] = d;
 window.DYES = DYES; window.DYE_BY = DYE_BY; window.DYE_PRICE = DYE_PRICE;
 const dyeN = (ch, id) => (ch && ch.inv && ch.inv[id]) || 0;
-function dyeOf(ch, hairId) { const d = ch && ch.dye && hairId && ch.dye[hairId]; return d && DYE_BY[d] ? d : null; }
+const DYE_NO = new Set(['czh_bald']); window.DYE_NO = DYE_NO;                // 10-09 주인님 : 반짝 민머리는 염색 안 됨
+function dyeOf(ch, hairId) { if (DYE_NO.has(hairId)) return null; const d = ch && ch.dye && hairId && ch.dye[hairId]; return d && DYE_BY[d] ? d : null; }
 window.dyeOf = dyeOf;
 
 // ── 색 입힌 머리 조각 ──
-const DYE_C = new Map();
+const DYE_C = new Map(), DYE_W = new WeakMap();
 function hsl2rgb(h, s, l) { h = ((h % 360) + 360) % 360 / 360; const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
   const f = t => { t = t < 0 ? t + 1 : t > 1 ? t - 1 : t; return t < 1 / 6 ? p + (q - p) * 6 * t : t < 1 / 2 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; };
   return [f(h + 1 / 3) * 255, f(h) * 255, f(h - 1 / 3) * 255]; }
@@ -28096,7 +28140,8 @@ function dyeMask(A, W, H, eye) {
   for (let i = 0; i < N; i++) { if (!op[i]) continue; const l = L[i * 3], a = L[i * 3 + 1], b = L[i * 3 + 2];
     const dS = Math.hypot(l - sk[0], a - sk[1], b - sk[2]), dH = hc ? Math.hypot(l - hc[0], a - hc[1], b - hc[2]) : 99;
     dHa[i] = dH;
-    if ((dS < 16 && dS < dH * 0.85) || (isSkin(A[i * 4], A[i * 4 + 1], A[i * 4 + 2]) && dS < 30 && dS < dH * 0.7) || (dS < 36 && dS < dH * 0.6 && Math.abs(b - sk[2]) < 14) || ((i / W | 0) > ey + 2.5 * er && dS < dH && dS < 40)) skin[i] = 1; }   // 셋째 : 그늘진 살 (목 · 귀)
+    if ((dS < 16 && dS < dH * 0.85) || (isSkin(A[i * 4], A[i * 4 + 1], A[i * 4 + 2]) && dS < 30 && dS < dH * 0.7) || (dS < 36 && dS < dH * 0.6 && Math.abs(b - sk[2]) < 14) || ((i / W | 0) > ey + 2.5 * er && dS < dH && dS < 40)
+      || ((i / W | 0) > ey + 1.5 * er && Math.abs(a - sk[1]) < 12 && Math.abs(b - sk[2]) < 14 && l > sk[0] - 38 && l < sk[0] + 8 && dH > 18)) skin[i] = 1; }   // 10-09 : 목 그늘 (살빛 · 조금 어두움) 은 살   // 셋째 : 그늘진 살 (목 · 귀)
   let face = dyeFlood(skin, pts, W, N);
   face = dyeDil(dyeDil(face, W, H, 2, false), W, H, 2, true); for (let i = 0; i < N; i++) if (!op[i]) face[i] = 0;          // 닫기 (틈 메우기)
   const nf = new Uint8Array(N), bd = []; for (let i = 0; i < N; i++) nf[i] = face[i] ? 0 : 1;
@@ -28114,19 +28159,26 @@ function dyeMask(A, W, H, eye) {
     const i = y * W + x; if (!op[i] || skin[i] || Yv[i] >= 0.45) continue; let u = 0, d = 0;
     for (let k = 1; k <= 4; k++) { const a = i - k * W, b = i + k * W; if (a >= 0 && (skin[a] || face[a])) u = 1; if (b < N && (skin[b] || face[b])) d = 1; }
     if (u && d) brow[i] = 1; }
-  for (let i = 0; i < N; i++) { const x = i % W, y = (i / W) | 0, qx = (x - ex) / (1.4 * er), qy = (y - ey) / (1.2 * er);
-    const feye = qx * qx + qy * qy <= 1 && (Yv[i] < 0.5 || dHa[i] > 14);                      // 앞 눈 (속눈썹 · 흰자) : 머리 가닥이 덮어도 눈은 그대로
+  for (let i = 0; i < N; i++) { const x = i % W, y = (i / W) | 0, qx = (x - ex + 0.2 * er) / (1.85 * er), qy = (y - ey) / (1.45 * er);   // 10-09 : 왼쪽(앞) 눈 지키는 칸을 넓힘 (눈꼬리 · 속눈썹이 옆머리와 붙어 물들던 것)
+    const feye = qx * qx + qy * qy <= 1 && (Yv[i] < 0.2 || dHa[i] > 14);   // 10-10 : 눈 옆 머리 가닥 (머리 빛깔 · 중간 밝기) 은 물들임 — 속눈썹 · 눈동자 (아주 어두움) · 흰자 · 홍채 (머리 빛깔과 다름) 만 지킴                      // 앞 눈 (속눈썹 · 흰자) : 머리 가닥이 덮어도 눈은 그대로
     ok[i] = op[i] && !face[i] && !skin[i] && !brow[i] && !feye ? 1 : 0; }
   for (let i = 0; i < top * W; i++) if (ok[i]) seeds.push(i);
   const hair = dyeFlood(ok, seeds, W, N), sf = new Uint8Array(N); for (let i = 0; i < N; i++) sf[i] = skin[i] || face[i] ? 1 : 0;
   const near = dyeDil(sf, W, H, 2, false);                                  // 볼 아래 얼굴 · 목 둘레 검은 선은 그대로 (턱선 · 목선)
   for (let i = 0; i < N; i++) if (hair[i] && near[i] && Yv[i] < 0.33 && (i / W | 0) > ey + 1.0 * er) hair[i] = 0;
+  { let fy0 = H, fy1 = -1; for (let i = 0; i < N; i++) if (face[i]) { const y = (i / W) | 0; if (y < fy0) fy0 = y; if (y > fy1) fy1 = y; }   // 10-10 주인님 : 목에 머리 색이 묻음 → 턱 아래 가운데 (목) 는 물들이지 않음
+    if (fy1 > fy0) { const yb = Math.floor(fy1 - (fy1 - fy0) * 0.3); let cx0 = W, cx1 = -1;
+      for (let y = yb; y <= fy1; y++) for (let x = 0; x < W; x++) if (face[y * W + x]) { if (x < cx0) cx0 = x; if (x > cx1) cx1 = x; }
+      if (cx1 >= cx0) { const pad = Math.round(0.25 * er), x0 = Math.max(0, cx0 - pad), x1 = Math.min(W - 1, cx1 + pad), y0 = Math.max(0, Math.floor(fy1 - 0.6 * er));
+        for (let y = y0; y < H; y++) for (let x = x0; x <= x1; x++) { const i = y * W + x; if (!hair[i] || L[i * 3] < 28) continue;
+          const a = L[i * 3 + 1], b = L[i * 3 + 2], dSh = Math.hypot(a - sk[1], b - sk[2]), dHh = hc ? Math.hypot(a - hc[1], b - hc[2]) : 99; if (dSh < dHh) hair[i] = 0; } } } }   // 빛깔(색조)이 살 쪽에 가까우면 목 그늘 · 머리 쪽이면 목 뒤 머리 가닥 (물들임)
   return hair;
 }
 function dyeCanvas(img, dyeId, eye) {                                       // eye : [x, y, r] 조각 안 앞쪽 눈 (지켜 둠)
   const D = DYE_BY[dyeId]; if (!D || !img || !(img.naturalWidth || img.width)) return null;
-  const key = (img.src ? img.src.length + ':' + img.src.slice(-48) : 'c') + '|' + dyeId + '|' + (eye ? eye.map(v => Math.round(v)).join(',') : '');
-  let c = DYE_C.get(key); if (c) return c;
+  const key = dyeId + '|' + (eye ? eye.map(v => Math.round(v)).join(',') : '');   // 10-09 : 그림마다 따로 (예전 열쇠 «길이 + 끝 48글자» 가 다른 그림과 겹쳐 아프로 뒤에 네모가 칠해졌음)
+  let per = DYE_W.get(img); if (!per) { per = new Map(); DYE_W.set(img, per); }
+  let c = per.get(key); if (c) return c;
   const W = img.naturalWidth || img.width, H = img.naturalHeight || img.height; c = document.createElement('canvas'); c.width = W; c.height = H;
   const g = c.getContext('2d', { willReadFrequently: true }); g.drawImage(img, 0, 0, W, H);
   let d; try { d = g.getImageData(0, 0, W, H); } catch (e) { return c; }
@@ -28143,17 +28195,17 @@ function dyeCanvas(img, dyeId, eye) {                                       // e
   const ys = []; for (let i = 0; i < N; i++) if (hair[i]) { const o = i * 4; ys.push((0.3 * A[o] + 0.59 * A[o + 1] + 0.11 * A[o + 2]) / 255); }
   if (ys.length < 20) return c;
   ys.sort((a, b) => a - b); const yLine = ys[Math.floor(ys.length * 0.08)], y0 = ys[Math.floor(ys.length * 0.12)], y1 = ys[Math.floor(ys.length * 0.97)] || 1, span = Math.max(0.08, y1 - y0);
-  for (let i = 0; i < N; i++) { if (!hair[i]) continue; const o = i * 4, Y = (0.3 * A[o] + 0.59 * A[o + 1] + 0.11 * A[o + 2]) / 255;
+  for (let i = 0; i < N; i++) { if (!hair[i] || A[i * 4 + 3] < 110) continue; const o = i * 4, Y = (0.3 * A[o] + 0.59 * A[o + 1] + 0.11 * A[o + 2]) / 255;   // 10-09 : 거의 투명한 바탕 점은 그대로 (아프로 뒤 네모)
     let L; if (Y <= yLine) L = Math.min(D.l0, Y * 0.9 + 0.02);                 // 테두리 선 : 어둡게 그대로 (색만 살짝)
     else { const t = clamp((Y - y0) / span, 0, 1); L = D.l0 + (D.l1 - D.l0) * t; }
     const [r, gg, b] = hsl2rgb(D.h, D.s, L); A[o] = r; A[o + 1] = gg; A[o + 2] = b; }
   g.putImageData(d, 0, 0);
-  if (DYE_C.size > 160) DYE_C.delete(DYE_C.keys().next().value);
-  DYE_C.set(key, c); return c;
+  if (per.size > 12) per.delete(per.keys().next().value);
+  per.set(key, c); return c;
 }
 window.dyeCanvas = dyeCanvas;
 // 머리 조각 하나 (CZ_ART.head[...].frames[n]) 의 앞쪽 눈 자리 : 기본 틀 좌표(fpose) → 조각 안 좌표
-function dyeEye(hf, job, n) { const fp = window.CZ_ART && CZ_ART.fpose && CZ_ART.fpose[job] && CZ_ART.fpose[job][n === 'walk2' ? 'idle' : n]; if (!fp || !hf) return null;
+function dyeEye(hf, job, n) { const fp = window.CZ_ART && CZ_ART.fpose && CZ_ART.fpose[job] && CZ_ART.fpose[job][n === 'walk2' ? 'idle' : n === 'walkNW' ? 'walk' : n]; if (!fp || !hf) return null;
   return [(fp[0] - hf.x0) * hf.k, (fp[1] - hf.y0) * hf.k, Math.max(3, fp[2] * hf.k * 0.62)]; }
 window.dyeEye = dyeEye;
 
@@ -28180,6 +28232,7 @@ function dyeMsg(s, col) { if (G.state === 'bag') M.bagMsg = [s, col || '#9fffb0'
 function dyeApply(ch, id, hairId) {                                         // 염색약 1개를 써서 (hairId 가 없으면 지금 쓴 머리)
   const hid = hairId || (ch.equip && ch.equip.czh), hg = hid && typeof czItem === 'function' && czItem(hid);
   if (!hg || !(ch.items || []).includes(hid)) { dyeMsg('꾸미기 머리를 쓰고 있을 때만 바를 수 있습니다', '#ff8a8a'); AU.play('hit', 0.5); return false; }
+  if (DYE_NO.has(hid)) { dyeMsg('민머리는 염색할 수 없습니다', '#ff8a8a'); AU.play('hit', 0.5); return false; }
   if (id === 'none') { if (ch.dye) delete ch.dye[hid]; saveNow(); dyeRefresh(); AU.play('select'); dyeMsg(hg.name + ' 을(를) 원래 색으로 되돌렸습니다'); return true; }
   if (dyeN(ch, id) <= 0) { dyeMsg(DYE_BY[id].name + '이 없습니다', '#ff8a8a'); AU.play('hit', 0.5); return false; }
   ch.inv[id]--; if (ch.inv[id] <= 0) delete ch.inv[id]; ch.dye = ch.dye || {}; ch.dye[hid] = id;
@@ -28217,7 +28270,7 @@ function drawDyeTab(ch, gx, gy, SX, mine) {
   }
   if (!pick) return;
   // ── 바를 머리 고르기 (내 가방의 꾸미기 머리) ──
-  const hairs = (ch.items || []).map(id => czItem(id)).filter(g => g && g.cat === 'czh' && czHas(g, ch.job, ch.sex));
+  const hairs = (ch.items || []).map(id => czItem(id)).filter(g => g && g.cat === 'czh' && !DYE_NO.has(g.id) && czHas(g, ch.job, ch.sex));
   const PX = gx - 4, PY = gy + 24, PW = 4 * cw + 3 * gap + 8, PH = 4 * (chh + gap) + 56;
   ctx.fillStyle = 'rgba(8,6,14,0.94)'; roundRect(PX, PY, PW, PH, 14); ctx.fill(); ctx.strokeStyle = '#ffb0e0'; ctx.lineWidth = 2; ctx.stroke();
   const PD = pick === 'none' ? null : DYE_BY[pick];
@@ -28360,7 +28413,7 @@ function drawGoldDrop(ch) {
 <script>
 // ════════════════════════════════════════════════════════════════
 //  감정표현 (2026-10-06 주인님) : 머리 위에 하얀 말풍선 + 표정 (2.6초)
-//   PC : / 를 누르면 고르는 줄 → 1~0 또는 눌러서 · 채팅에 ㅎ · ㅋ 만 쓰면 웃음 · ㅠ · ㅜ 만 쓰면 울음 (봇도 같음)
+//   PC : / 를 누르면 고르는 줄 → 1~0 또는 눌러서 · 채팅에 ㅎ 만 쓰면 웃음 (10-10 주인님 : ㅋㅋ 는 글 그대로 · 표정으로 안 바꿈) · ㅠ · ㅜ 만 쓰면 울음 (봇도 같음)
 //   휴대폰 : «메뉴» → «감정표현»
 //   서버 때 : 내 감정표현을 같은 맵 사람에게 보냄 (EMO 번호 하나)
 // ════════════════════════════════════════════════════════════════
@@ -28410,12 +28463,12 @@ function drawEmote(f) {
 }
 function heart(g, x, y, r) { g.beginPath(); g.moveTo(x, y + r * 0.9); g.bezierCurveTo(x - r * 1.6, y - r * 0.2, x - r * 0.7, y - r * 1.4, x, y - r * 0.5); g.bezierCurveTo(x + r * 0.7, y - r * 1.4, x + r * 1.6, y - r * 0.2, x, y + r * 0.9); g.fill(); }
 { const dn0 = drawNameTag; drawNameTag = function (f) {
-    if (f && f.bubble && !f.emote) { const s = String(f.bubble.s || '').trim(); if (/^[ㅎㅋ]+$/.test(s)) emote(f, 'laugh'); else if (/^[ㅠㅜ]+$/.test(s)) emote(f, 'cry'); }   // 봇 · 남의 ㅋㅋ · ㅠㅠ 도 표정으로
+    if (f && f.bubble && !f.emote) { const s = String(f.bubble.s || '').trim(); if (/^ㅎ+$/.test(s)) emote(f, 'laugh'); else if (/^[ㅠㅜ]+$/.test(s)) emote(f, 'cry'); }   // 봇 · 남의 ㅎㅎ · ㅠㅠ 도 표정으로
     const r = dn0(f); if (f && f.emote) drawEmote(f); return r; }; window.drawNameTag = drawNameTag; }
-// ── 채팅 : ㅎ · ㅋ 만 → 웃음 · ㅠ · ㅜ 만 → 울음 (채팅 글은 그대로 남고 머리 위만 표정) ──
+// ── 채팅 : ㅎ 만 → 웃음 (ㅋ 는 그대로 글) · ㅠ · ㅜ 만 → 울음 (채팅 글은 그대로 남고 머리 위만 표정) ──
 { const sc0 = sendChat; sendChat = function () {
     const inp = document.getElementById('chatIn'), s = inp ? inp.value.trim() : '', p = G.player; const r = sc0.apply(this, arguments);
-    if (p && p.bubble && p.bubble.s === s.slice(0, 60)) { if (/^[ㅎㅋ]+$/.test(s)) emote(p, 'laugh'); else if (/^[ㅠㅜ]+$/.test(s)) emote(p, 'cry'); }
+    if (p && p.bubble && p.bubble.s === s.slice(0, 60)) { if (/^ㅎ+$/.test(s)) emote(p, 'laugh'); else if (/^[ㅠㅜ]+$/.test(s)) emote(p, 'cry'); }
     return r; }; window.sendChat = sendChat; }
 // ── 고르는 줄 ──
 function emoRects() {
@@ -29280,6 +29333,7 @@ rotStage = function () {
       if (cb) { const cs = cb.style; cs.top = (off + av + 4) + 'px'; cs.bottom = 'auto'; cs.left = '8px'; cs.right = '8px'; cs.width = 'auto'; } } }
   if (cb && !(KB.act && !pd)) { const cs = cb.style; cs.top = cs.bottom = cs.left = cs.right = cs.width = ''; }
   if (PT.on) ptSize();
+  if (window.rtPos) rtPos();                                                                  // 10-10 : 세로 채팅 칸은 자판 바로 위
   return ret; };
 window.rotStage = rotStage;
 // 10-08 주인님 : 세로 마을 화면을 더 크게 (말 기록 칸을 줄이고) — 위아래로 늘리기만 하면 하늘 · 땅만 길어지니 «확대» : 사람 · 건물이 커지고 좌우는 나를 따라 잘림
@@ -29342,6 +29396,7 @@ body.pt #wrap{align-items:flex-start}
 #ptPad .ptBtns .bz small{display:block;font-size:11px;font-weight:700;color:#e8d8b8;margin-top:3px}
 #ptPad .ptBtns .bj{right:18px;bottom:16px;width:70px;height:70px}
 #ptPad .ptBtns .bd{right:100px;bottom:16px;width:70px;height:70px}
+#ptPad .ptBtns .bv{right:182px;bottom:16px;width:60px;height:60px;font-size:15px}
 body.pt.rtype #ptPad .ptCtl{display:none}
 body.pt.rtype #ptPad .ptTop{visibility:hidden}
 body.kbm #chatBox.show{display:flex;align-items:center;gap:6px;padding:5px 6px}
@@ -29354,7 +29409,7 @@ document.head.appendChild(st);
 const pad = document.createElement('div'); pad.id = 'ptPad';
 pad.innerHTML = `<div class="ptTop"><button class="say" data-a="say">말하기</button><button data-a="menu">메뉴</button><button data-a="map">지도</button><button data-a="emo">감정</button><button data-a="land">가로</button></div>
 <div id="ptLog"></div><div id="ptMenu"></div>
-<div class="ptCtl"><div class="ptStick"><div class="ptKnob"></div></div><div class="ptBtns"><button class="bz" data-k="z">Z<small>말 걸기</small></button><button class="bd" data-k="dash">대시</button><button class="bj" data-k="jump">점프</button></div></div>`;
+<div class="ptCtl"><div class="ptStick"><div class="ptKnob"></div></div><div class="ptBtns"><button class="bz" data-k="z">Z<small>말 걸기</small></button><button class="bv" data-k="v">줍기</button><button class="bd" data-k="dash">대시</button><button class="bj" data-k="jump">점프</button></div></div>`;
 document.body.appendChild(pad);
 const $log = pad.querySelector('#ptLog'), $menu = pad.querySelector('#ptMenu'), $stick = pad.querySelector('.ptStick'), $knob = pad.querySelector('.ptKnob');
 function ptSize() { pad.style.top = (PT.h || Math.round(window.innerWidth * 9 / 16)) + 'px'; }
@@ -29471,7 +29526,7 @@ if (inKakao || /[?&]kakaotest=1/.test(location.search)) { if (document.body) kak
 // ════════════════════════════════════════════════════════════════
 {
 const DW = { x: 120, y: 44, w: 1040, h: 632 };
-const dwHairs = ch => (ch.items || []).map(id => czItem(id)).filter(g => g && g.cat === 'czh' && czHas(g, ch.job, ch.sex));
+const dwHairs = ch => (ch.items || []).map(id => czItem(id)).filter(g => g && g.cat === 'czh' && !(window.DYE_NO && DYE_NO.has(g.id)) && czHas(g, ch.job, ch.sex));
 const dwDyes = ch => DYES.filter(d => ((ch.inv && ch.inv[d.id]) || 0) > 0);
 function dyeWinOpen(ch, dyeId) {
   if (!ch) return;
@@ -29703,7 +29758,7 @@ function botJKs() {
   BOT_JK = [own, own, own, [own[0], own[1] === 'f' ? 'm' : 'f']]; BOT_JK.own = own; return BOT_JK;   // 내 직업 남녀만 (다른 직업 치장 그림은 무거움) · 3:1                     // 10-07 : 직업 · 성별은 8가지 다 · 단 옷 · 머리 치장은 내 직업 · 성별만 (다른 치장 그림을 불러오면 마을까지 무거워짐)
 }
 let POOL_SEED = Math.floor(Math.random() * 1e9);
-function czPool(job, sx, cat) { if (typeof CZ_LIST === 'undefined') return []; return CZ_LIST.filter(a => a[1] === cat && !/whitelion|wdragon|haetae|panther|bat/.test(a[0])).map(a => czItem(a[0])).filter(g => g && czHas(g, job, sx)).map(g => g.id).sort((a, b) => ((hashS(a) ^ POOL_SEED) % 997) - ((hashS(b) ^ POOL_SEED) % 997)).slice(0, cat === 'czn' || cat === 'czm' || cat === 'czp' ? 8 : 6); }   // 한 번에 6 벌 안에서 (그림 메모리)
+function czPool(job, sx, cat) { if (typeof CZ_LIST === 'undefined') return []; return CZ_LIST.filter(a => a[1] === cat && !/whitelion|wdragon|haetae|panther|bat/.test(a[0]) && !(window.CZ_NOSALE && CZ_NOSALE.has(a[0]))).map(a => czItem(a[0])).filter(g => g && czHas(g, job, sx)).map(g => g.id).sort((a, b) => ((hashS(a) ^ POOL_SEED) % 997) - ((hashS(b) ^ POOL_SEED) % 997)).slice(0, cat === 'czn' || cat === 'czm' || cat === 'czp' ? 8 : 6); }   // 한 번에 6 벌 안에서 (그림 메모리)
 function hashS(t) { let h = 7; for (const c of String(t)) h = (h * 31 + c.charCodeAt(0)) % 1e9; return h; }
 function botSpec(seed) {
   const r = seeded(seed), pk = a => a.length ? a[Math.floor(r() * a.length)] : null, jk = pk(botJKs()), job = jk[0], sx = jk[1];
@@ -29730,7 +29785,8 @@ function meEnt() { const ch = curChar(); if (!ch) return null; if (!CF.me) CF.me
 function ents() { return CF.view === 'room' ? CF.inRoom : CF.hall; }
 function say(e, s, quiet) {
   s = clean(s); if (!s) return; e.say = { s, t0: CF.t, dur: clamp(3.5 + s.length * 0.12, 4, 8) }; e.typing = 0; e.hop = CF.t;
-  if (/^[ㅋㅎ]+$/.test(s)) e.emo = { k: 'laugh', t0: CF.t }; else if (/^[ㅠㅜ]+$/.test(s)) e.emo = { k: 'cry', t0: CF.t };
+  if (/^ㅎ+$/.test(s)) e.emo = { k: 'laugh', t0: CF.t };   // 10-10 주인님 : ㅋㅋ 는 표정으로 안 바꿈 (글 그대로)
+  else if (/^[ㅠㅜ]+$/.test(s)) e.emo = { k: 'cry', t0: CF.t };
   if (!quiet) logPush(CF.view === 'room' ? 'r' + CF.room : 'hall', { k: 'msg', who: e.id, name: e.name, s, mine: e === CF.me });
 }
 function emoteE(e, k) { e.emo = { k, t0: CF.t }; e.hop = CF.t; }
@@ -29756,6 +29812,7 @@ body.cafe{background:repeating-linear-gradient(90deg,#e9d6b8 0 58px,#e2cdaa 58px
 #cafeUI button{font-family:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
 #cfTop{position:absolute;left:0;right:0;top:0;height:46px;display:flex;align-items:center;gap:6px;padding:0 8px;box-sizing:border-box;pointer-events:auto;
   background:linear-gradient(#fffaf1,#f6ead6);border-bottom:1px solid #e2cfb0;box-shadow:0 2px 8px rgba(120,80,40,.12)}
+#cfTop.ov{top:5px!important;left:5px!important;right:5px!important;width:auto!important;height:44px;border-radius:14px 14px 0 0;border-bottom:none;box-shadow:none;background:linear-gradient(rgba(255,250,241,.86),rgba(255,250,241,.5) 70%,rgba(255,250,241,0))}
 #cfTop .tb{height:34px;min-width:34px;padding:0 10px;border-radius:17px;border:1px solid #e0c9a6;background:#fffdf8;color:#6a4a32;font-weight:800;font-size:14px;white-space:nowrap}
 #cfTop .tb:active{background:#f5e6cc}
 #cfTop .tt{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.15}
@@ -29793,6 +29850,7 @@ body.cafe #wrap.gap{border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px rgba
 #cfBar .ib{flex:none;width:40px;height:40px;border-radius:20px;border:1px solid #e6d2b2;background:#fff;font-size:20px;line-height:1;padding:0}
 #cfIn{flex:1;min-width:0;height:40px;border-radius:20px;border:1px solid #e2cba8;background:#fff;padding:0 14px;font:600 16px "Pretendard","Malgun Gothic",sans-serif;color:#3e2c20;outline:none}
 #cfIn:focus{border-color:#8fb39a;box-shadow:0 0 0 3px rgba(143,179,154,.25)}
+textarea#cfIn{display:block;resize:none;overflow:hidden;white-space:nowrap;box-sizing:border-box;padding:9px 14px;line-height:20px}
 #cfSend{flex:none;height:40px;padding:0 14px;border-radius:20px;border:none;background:#7fa886;color:#fff;font-weight:900;font-size:15px}
 #cfSend:active{background:#6a9271}
 #cfEmo{display:none;position:absolute;left:8px;right:8px;padding:8px;border-radius:16px;background:#fffdf8;border:1px solid #e6d2b2;box-shadow:0 6px 18px rgba(120,80,40,.18);grid-template-columns:repeat(5,1fr);gap:6px}
@@ -29866,7 +29924,7 @@ body.cafe #wrap.gap{border-radius:14px;overflow:hidden;box-shadow:0 0 0 1px rgba
 document.head.appendChild(css);
 const UIx = document.createElement('div'); UIx.id = 'cafeUI';
 UIx.innerHTML = `<div id="cfTop"></div><div id="cfPanel"><div id="cfNotice"></div><div id="cfLog"></div><button id="cfNew">새 말 ↓</button>
-<div id="cfEmo"></div><div id="cfBar"><button class="ib" id="cfEmoB" title="감정표현">😊</button><button class="ib" id="cfDrB" title="음료">☕</button><input id="cfIn" type="text" maxlength="${CF_MSG}" placeholder="말하기…" autocomplete="off" enterkeyhint="send"><button id="cfSend">보내기</button></div></div>
+<div id="cfEmo"></div><div id="cfBar"><button class="ib" id="cfEmoB" title="감정표현">😊</button><button class="ib" id="cfDrB" title="음료">☕</button><textarea id="cfIn" rows="1" wrap="off" maxlength="${CF_MSG}" placeholder="말하기…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="send"></textarea><button id="cfSend">보내기</button></div></div>
 <div id="cfCard"></div><div id="cfModal"><div class="mb"></div></div><div id="cfToast"></div>`;
 document.body.appendChild(UIx);
 const $c = id => document.getElementById(id);
@@ -29882,13 +29940,14 @@ function layout() {
   const portDev = (() => { try { const o = screen.orientation && screen.orientation.type; if (o) return o.indexOf('portrait') === 0; } catch (e) {} return innerHeight > innerWidth; })();
   const TB = 46, port = H > W * 1.05 || !!(CF.kb && COARSE && portDev); CF.port = port; let cv, pn, col = { x: 0, w: W };   // 10-08 : 키보드가 올라와 남은 칸이 납작해도 폰이 세로면 세로 배치
   const M = port ? 5 : 8, GP = port ? 6 : 10;                                 // 바깥 여백 · 화면과 채팅 사이 틈 (아주 조금)
-  const kbP = port && CF.kb && COARSE; $top.style.visibility = kbP ? 'hidden' : '';   // 10-08 주인님 : 세로에서 «말하기» → 화면은 줄이지 말고(오히려 크게) 말 기록이 키보드에 가려지게 · 위 띠도 잠깐 숨김
+  const kbP = port && CF.kb && COARSE; $top.style.visibility = kbP ? 'hidden' : ''; $top.classList.toggle('ov', port && !kbP);   // 10-08 주인님 : 세로에서 «말하기» → 화면은 줄이지 말고(오히려 크게) 말 기록이 키보드에 가려지게 · 위 띠도 잠깐 숨김
   if (kbP) { const bar = 60; cv = { x: M, y: M, w: W - M * 2, h: Math.max(140, H - bar - GP - M * 2) }; pn = { x: M, y: cv.y + cv.h + GP, w: W - M * 2, h: Math.max(bar, H - cv.y - cv.h - GP - M), cls: 'bot gap' }; }
   else if (port || cfPos() === 'bottom') {
-    const avail = H - TB, kb = CF.kb && COARSE, k = kb ? 0.46 : port ? (CF.view === 'room' ? 0.6 : 0.63) : 0.7;
+    const T0 = port ? 0 : TB;                                                 // 10-09 주인님 : 세로에서는 위 띠(마을로 · 방 목록 · 이름 · 사람 수)를 그림 위에 겹쳐 그 만큼 그림을 크게
+    const avail = H - T0, kb = CF.kb && COARSE, k = kb ? 0.46 : port ? (CF.view === 'room' ? 0.6 : 0.63) : 0.7;
     const bar = 56, chH = Math.round(Math.max(150, (avail - bar) * k));
     if (!port) { const cw = Math.min(W, 1600); col = { x: Math.round((W - cw) / 2), w: cw }; }   // 아주 넓은 PC : 가운데 1600 (양옆은 카페 무늬)
-    cv = { x: col.x + M, y: TB + M, w: col.w - M * 2, h: chH - M }; pn = { x: col.x + M, y: TB + chH + GP, w: col.w - M * 2, h: H - TB - chH - GP - M, cls: 'bot gap' };
+    cv = { x: col.x + M, y: T0 + M, w: col.w - M * 2, h: chH - M }; pn = { x: col.x + M, y: T0 + chH + GP, w: col.w - M * 2, h: H - T0 - chH - GP - M, cls: 'bot gap' };
   } else {
     const side = Math.round(clamp(W * 0.36, 300, 520)), left = cfPos() === 'left';
     cv = { x: (left ? side : 0) + M, y: TB + M, w: W - side - M - GP / 2, h: H - TB - M * 2 }; pn = { x: left ? M : W - side + GP / 2, y: TB + M, w: side - M - GP / 2, h: H - TB - M * 2, cls: 'side gap' };
@@ -30054,6 +30113,8 @@ function send() {
   const me = CF.me; if (!me) return; say(me, s); AU.play('select', 0.35);
   botHear(me, s);
 }
+$in.addEventListener('beforeinput', e => { if (e.inputType === 'insertLineBreak' || e.inputType === 'insertParagraph') { e.preventDefault(); send(); } });   // 10-10 : textarea 한 줄 (자판 위 열쇠 · 카드 · 위치 줄 없앰) · 줄바꿈 = 보내기
+$in.addEventListener('input', () => { if (/[\r\n]/.test($in.value)) { $in.value = $in.value.replace(/[\r\n]+/g, ' ').trim(); send(); } });
 $in.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter' && !e.isComposing) { e.preventDefault(); send(); } if (e.key === 'Escape') { e.preventDefault(); $in.blur(); } });
 $in.addEventListener('input', () => { CF.typingT = $in.value.trim() ? now() : 0; });
 $in.addEventListener('focus', () => { CF.kb = true; $emo.classList.remove('on'); if (COARSE) setTimeout(() => { cfFit(); logBottom(false); }, 250); });
@@ -31087,8 +31148,11 @@ const LOAD_TIPS = [
 const LD = { OUT: 0.28, HOLD: 1.0, IN: 0.32, last: -1 };
 function loadTip() { let i = 0; for (let k = 0; k < 6; k++) { i = Math.floor(Math.random() * LOAD_TIPS.length); if (i !== LD.last) break; } LD.last = i; return LOAD_TIPS[i]; }
 let LOAD_ART_TRIED = false;
-function loadArtLazy() { if (LOAD_ART_TRIED) return; LOAD_ART_TRIED = true; const sc = document.createElement('script'); sc.src = '그림/로딩.js?v=' + String(typeof BUILD !== 'undefined' ? BUILD : '').replace(/\D/g, ''); sc.onerror = () => {}; document.head.appendChild(sc); }
-function loadPickArt() { const A = window.LOAD_ART; if (!A || !A.length) return null; const k = Math.floor(Math.random() * A.length), o = A[k]; if (!o._img) { o._img = new Image(); o._img.src = o.src; } return o; }
+function loadArtWarm() { const A = window.LOAD_ART; if (!A) return; for (const o of A) if (!o._img) { o._img = new Image(); o._img.src = o.src; if (o._img.decode) o._img.decode().catch(() => {}); } }   // 10-10 : 그림을 미리 풀어 둠 (처음 로딩 때 그린 하늘만 보이던 것)
+function loadArtLazy() { if (LOAD_ART_TRIED) { loadArtWarm(); return; } LOAD_ART_TRIED = true; const sc = document.createElement('script'); sc.src = '그림/로딩.js?v=' + String(typeof BUILD !== 'undefined' ? BUILD : '').replace(/\D/g, ''); sc.onload = loadArtWarm; sc.onerror = () => { LOAD_ART_TRIED = false; }; document.head.appendChild(sc); }
+function loadPickArt() { const A = window.LOAD_ART; if (!A || !A.length) return null; loadArtWarm();
+  const R = A.filter(o => o._img && o._img.complete && o._img.naturalWidth), L = R.length ? R : A, k = Math.floor(Math.random() * L.length); return L[k]; }   // 다 풀린 그림 중에서 고름
+{ const go = () => setTimeout(() => { try { loadArtLazy(); } catch (e) {} }, 1500); if (document.readyState === 'complete') go(); else addEventListener('load', go, { once: true }); }                   // 10-10 : 게임을 켜고 조금 뒤 미리 불러 둠 (쉼표 온실 · 맵 옮길 때 첫 로딩에도 뽑은 그림이 보이게)
 function loadStart(fn) { loadArtLazy(); G.fade = { t: 0, out: LD.OUT, hold: LD.HOLD, inn: LD.IN, dur: LD.OUT + LD.HOLD + LD.IN, fn, done: false, tip: loadTip(), lab: Math.random() < 0.5 ? 'TIP' : '알고 있었나요?', art: loadPickArt(), woke: 0 }; }
 startFade = function (fn, dur) { if (G.state !== 'play') { fn(); return; } loadStart(fn); }; window.startFade = startFade;
 fadeStep = function (dt) {
@@ -31106,6 +31170,7 @@ drawFadeOverlay = function () { const a = fadeAlpha(); if (a <= 0) return; drawL
 function drawLoading(g, W, H, a, f) {
   const t = (G.real || performance.now() / 1000), F = '"Pretendard","Malgun Gothic",sans-serif', s = Math.max(0.78, Math.min(1.25, Math.min(W / 1280, H / 560))) || 1;
   g.save(); g.globalAlpha = a; g.globalCompositeOperation = 'source-over'; g.filter = 'none';
+  if (f && f.t < (f.out || 0.3) + 0.15 && !(f.art && f.art._img && f.art._img.complete && f.art._img.naturalWidth)) { const o = loadPickArt(); if (o && o._img && o._img.complete && o._img.naturalWidth) f.art = o; }   // 10-10 : 고른 그림이 아직 안 풀렸으면 풀린 다른 그림으로 (어두워지는 동안만)
   const art = f && f.art, ai = art && art._img && art._img.complete && art._img.naturalWidth ? art._img : null;
   if (ai) { const k = Math.max(W / ai.naturalWidth, H / ai.naturalHeight), dw = ai.naturalWidth * k, dh = ai.naturalHeight * k; g.drawImage(ai, (W - dw) / 2, (H - dh) / 2, dw, dh);
     const fog = g.createLinearGradient(0, H * 0.55, 0, H); fog.addColorStop(0, 'rgba(255,250,240,0)'); fog.addColorStop(1, 'rgba(255,250,240,0.55)'); g.fillStyle = fog; g.fillRect(0, H * 0.55, W, H * 0.45); }
